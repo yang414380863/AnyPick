@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/share"
+        android:title="Share"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/open_in_browser"
+        android:title="Open in browser"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/copy_link"
+        android:title="Copy link"
+        app:showAsAction="never"/>
+</menu>
