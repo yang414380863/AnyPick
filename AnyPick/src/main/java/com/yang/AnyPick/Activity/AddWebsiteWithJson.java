@@ -1,4 +1,4 @@
-package com.yang.AnyPick;
+package com.yang.AnyPick.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.JsonUtils;
 import com.yang.AnyPick.web.Website;

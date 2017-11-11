@@ -1,9 +1,6 @@
-package com.yang.AnyPick;
+package com.yang.AnyPick.Activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +31,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
+import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.*;
 

@@ -1,4 +1,4 @@
-package com.yang.AnyPick;
+package com.yang.AnyPick.Activity;
 
 
 import android.content.BroadcastReceiver;
@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
+import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.Browser;
 import com.yang.AnyPick.web.WebItem;

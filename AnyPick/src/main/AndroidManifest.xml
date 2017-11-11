@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme2">
 
-        <activity android:name="com.yang.AnyPick.MainActivity">
+        <activity android:name="com.yang.AnyPick.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -28,24 +28,24 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.yang.AnyPick.Login">
+        <activity android:name="com.yang.AnyPick.Activity.Login">
         </activity>
 
         <activity
-            android:name="com.yang.AnyPick.ListActivity"
+            android:name="com.yang.AnyPick.Activity.ListActivity"
             android:launchMode="singleTask">
         </activity>
         <activity
-            android:name="com.yang.AnyPick.DetailActivity"
+            android:name="com.yang.AnyPick.Activity.DetailActivity"
             android:launchMode="singleTask">
         </activity>
         <activity
-            android:name="com.yang.AnyPick.ViewPicture"
+            android:name="com.yang.AnyPick.Activity.ViewPicture"
             android:launchMode="singleTask">
         </activity>
-        <activity android:name=".AddWebsite">
+        <activity android:name=".Activity.AddWebsite">
         </activity>
-        <activity android:name=".AddWebsiteWithJson">
+        <activity android:name=".Activity.AddWebsiteWithJson">
         </activity>
         <service
             android:name="com.yang.AnyPick.download.DownloadService"

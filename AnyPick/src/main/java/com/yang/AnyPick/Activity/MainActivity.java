@@ -1,4 +1,4 @@
-package com.yang.AnyPick;
+package com.yang.AnyPick.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;

@@ -12,7 +12,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
-import com.yang.AnyPick.Login;
+import com.yang.AnyPick.Activity.Login;
 import com.yang.AnyPick.R;
 
 import java.io.File;

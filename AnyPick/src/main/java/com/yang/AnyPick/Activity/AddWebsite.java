@@ -1,4 +1,4 @@
-package com.yang.AnyPick;
+package com.yang.AnyPick.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.LogUtil;
-import com.yang.AnyPick.basic.MyApplication;
 import com.yang.AnyPick.web.JsonUtils;
 import com.yang.AnyPick.web.Website;
 import com.yang.AnyPick.web.html.ItemRule;
