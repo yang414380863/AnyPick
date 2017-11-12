@@ -4,8 +4,6 @@ package com.yang.AnyPick.basic;
  * Created by YanGGGGG on 2017/10/28.
  */
 
-import android.os.Handler;
-import android.os.Message;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +22,6 @@ public class Client {
         new Thread(new Runnable() {
             @Override
             public void run(){
-                int state=0;
                 try (Socket socket = new Socket(ServerIP, PORT)){
                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     PrintWriter out = new PrintWriter(socket.getOutputStream(),true);

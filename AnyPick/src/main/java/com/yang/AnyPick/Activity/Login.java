@@ -17,6 +17,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.LogUtil;
+import com.yang.AnyPick.basic.MyApplication;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -36,6 +37,7 @@ public class Login extends AppCompatActivity {
     private String username;
     private String password;
     private boolean isRemember;
+    private boolean hasLogin;
     private Intent intent;
 
 
@@ -49,12 +51,32 @@ public class Login extends AppCompatActivity {
         username=pref.getString("username","");
         password=pref.getString("password","");
         isRemember=pref.getBoolean("rememberPassword",false);
+        hasLogin=pref.getBoolean("hasLogin",false);
         intent=new Intent(Login.this,ListActivity.class);
         if (isRemember){
             //自动填写帐号密码
             accountEdit.setText(username);
             passwordEdit.setText(password);
             rememberPass.setChecked(true);
+        }
+        /*if (isPushService()){
+            //通过点击推送启动
+            //发送一个点击了推送的广播,使不需要的Activity关闭
+            Intent intentBroadcast=new Intent("com.example.yang.yang.CLICK_PUSH");
+            MyApplication.getContext().sendBroadcast(intentBroadcast);
+            String index=getIntent().getExtras().getString("index");
+            Intent intent=new Intent(MainActivity.this,ListActivity.class);
+            intent.putExtra("index",index);//如果List之前未启动则通过intent获取推送index
+            //todo:将index传给ListActivity,使其访问并刷新界面
+            startActivity(intent);
+            finish();
+        }else {
+            //通过点击APP启动
+            startPushService();
+        }*/
+        if (hasLogin){
+            //已登录 直接自动登录
+            login();
         }
     }
     //登录
@@ -115,6 +137,8 @@ public class Login extends AppCompatActivity {
     }
     //注册
     private void register(){
+        final String username=accountEdit.getText().toString();
+        final String password=passwordEdit.getText().toString();
         Observable.create(new ObservableOnSubscribe<String>() {
             @Override
             public void subscribe(ObservableEmitter<String> emitter) throws Exception {

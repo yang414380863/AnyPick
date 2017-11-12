@@ -32,13 +32,21 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.LogUtil;
+import com.yang.AnyPick.basic.MyApplication;
 import com.yang.AnyPick.web.*;
 
 import java.util.ArrayList;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.yang.AnyPick.web.WebsiteInit.websitesInit;
 
@@ -77,6 +85,7 @@ public class ListActivity extends AppCompatActivity {
     private String mark;
     private boolean hasLogin;
     private String username;
+    private String password;
     //初始化网站LIST
     static Website[] websites;
     static String[] websitesString;
@@ -119,6 +128,7 @@ public class ListActivity extends AppCompatActivity {
         mark=pref.getString("mark","");
         hasLogin=pref.getBoolean("hasLogin",false);
         username=pref.getString("username","");
+        password=pref.getString("password","");
         editor=pref.edit();
         browser=Browser.getInstance();
         webContentList=new ArrayList<>();
@@ -271,7 +281,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void doSignInOrOut(){
-        Intent intent=new Intent(ListActivity.this,MainActivity.class);
+        Intent intent=new Intent(ListActivity.this,Login.class);
         if (hasLogin){
             //点击ICON注销
             editor.putBoolean("hasLogin",false);
@@ -488,6 +498,7 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Logger.d("error");
+                Toast.makeText(ListActivity.this,"Network connection failure",Toast.LENGTH_SHORT).show();
                 disposable.dispose();
                 isNextPage=false;
             }
@@ -644,41 +655,35 @@ public class ListActivity extends AppCompatActivity {
             newMarks.add(websiteIndex);
         }
         String[] newStrings=newMarks.toArray(new String[newMarks.size()]);
-        StringBuilder newMark=new StringBuilder(newStrings[0]);
+        StringBuilder newMark;
+        if (newStrings.length==0){
+            newMark=new StringBuilder("");
+        }else {
+            newMark=new StringBuilder(newStrings[0]);
+        }
         for (int i=1;i<newStrings.length;i++){
             newMark=newMark.append(",").append(newStrings[i]);
         }
-        LogUtil.d(newMarks.size());
+        LogUtil.d("Marks.size(): "+newMarks.size());
         editor=pref.edit();
         editor.putString("mark",newMark.toString());
         editor.apply();
-        //上传服务器
-        /*todo
-        final String s=newString;
-        final AVQuery<AVObject> query1 = new AVQuery<>("_User");
-        query1.whereEqualTo("username", username);
-        query1.findInBackground(new FindCallback<AVObject>() {
+        mark=pref.getString("mark","");
+
+        Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public void done(List<AVObject> list, AVException e) {
-                for (AVObject item : list) {
-                    item.put("mark", s);
-                    item.saveInBackground();
-                }
+            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                new Client().sendForResult(emitter,"updateMark "+username+" "+password+" "+mark);
             }
-        });
-        final AVQuery<AVObject> query2 = new AVQuery<>("_Installation");
-        query2.whereEqualTo("installationId", AVInstallation.getCurrentInstallation().getInstallationId());
-        query2.findInBackground(new FindCallback<AVObject>() {
-            @Override
-            public void done(List<AVObject> list, AVException e) {
-                for (AVObject item : list) {
-                    item.put("mark", s);
-                    item.saveInBackground();
-                }
-            }
-        });
-*/
-        LogUtil.d("mark "+newMark.toString());
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        LogUtil.d("subscribe success: " + s);
+                    }
+                });
     }
 
     public boolean isSubscribe(String websiteIndex){

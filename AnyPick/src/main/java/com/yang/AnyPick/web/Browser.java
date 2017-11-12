@@ -3,7 +3,6 @@ package com.yang.AnyPick.web;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.yang.AnyPick.basic.*;
 import com.yang.AnyPick.web.html.*;
@@ -133,7 +132,6 @@ public class Browser {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             LogUtil.d("onFailure");
-                            Toast.makeText(MyApplication.getContext(),"Network connection failure",Toast.LENGTH_SHORT).show();
                             listEmitter.onError(e);
                         }
 
@@ -281,7 +279,6 @@ public class Browser {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             LogUtil.d("onFailure");
-                            Toast.makeText(MyApplication.getContext(),"Network connection failure",Toast.LENGTH_SHORT).show();
                             listEmitter.onError(e);
                         }
                         @Override
