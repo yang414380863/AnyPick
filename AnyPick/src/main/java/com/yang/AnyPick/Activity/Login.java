@@ -46,18 +46,21 @@ public class Login extends AppCompatActivity {
     private void init(){
         accountEdit=(EditText)findViewById(R.id.username);
         passwordEdit=(EditText)findViewById(R.id.password);
-        pref= PreferenceManager.getDefaultSharedPreferences(this);
         rememberPass=(CheckBox)findViewById(R.id.remember_pass);
+        pref= PreferenceManager.getDefaultSharedPreferences(this);
         username=pref.getString("username","");
         password=pref.getString("password","");
         isRemember=pref.getBoolean("rememberPassword",false);
-        hasLogin=pref.getBoolean("hasLogin",false);
         intent=new Intent(Login.this,ListActivity.class);
         if (isRemember){
             //自动填写帐号密码
             accountEdit.setText(username);
             passwordEdit.setText(password);
             rememberPass.setChecked(true);
+        }
+        hasLogin=pref.getBoolean("hasLogin",false);
+        if (hasLogin){//已登录 直接自动登录
+            login();
         }
         /*if (isPushService()){
             //通过点击推送启动
@@ -74,10 +77,7 @@ public class Login extends AppCompatActivity {
             //通过点击APP启动
             startPushService();
         }*/
-        if (hasLogin){
-            //已登录 直接自动登录
-            login();
-        }
+
     }
     //登录
     private void login(){
@@ -180,6 +180,10 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+        init();
+        UIInit();
+    }
+    private void UIInit(){
         ImageView loginBackground=(ImageView)findViewById(R.id.login_background);
         RequestOptions options = new RequestOptions().centerCrop();
         Glide
@@ -202,6 +206,5 @@ public class Login extends AppCompatActivity {
                 finish();
             }
         });
-        init();
     }
 }

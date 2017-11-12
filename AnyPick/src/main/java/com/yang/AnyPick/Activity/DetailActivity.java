@@ -125,6 +125,8 @@ public class DetailActivity extends AppCompatActivity {
             public void onError(Throwable e) {
                 Logger.d("error");
                 disposable.dispose();
+                swipeRefreshLayout.setRefreshing(false);
+                isRefreshing=0;
             }
 
             @Override

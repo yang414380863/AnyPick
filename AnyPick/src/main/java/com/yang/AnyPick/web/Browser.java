@@ -3,6 +3,7 @@ package com.yang.AnyPick.web;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.yang.AnyPick.basic.*;
 import com.yang.AnyPick.web.html.*;
@@ -13,6 +14,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -105,7 +107,7 @@ public class Browser {
 
     public void sendRequest(final Website website,Observer<ArrayList<WebItem>> observer){
         if (listEmitter !=null&&!listEmitter.isDisposed()){//如果发起新Request时,旧的Request还未完成,则终止旧的Request
-            listEmitter.onError(new Exception());
+            listEmitter.onComplete();
         }
         recordLastRequest(website);
         setNewObservableList();
@@ -253,7 +255,7 @@ public class Browser {
 
     public void sendRequestDetail(final Observer<WebItem> observer,final WebItem webItem){
         if (detailEmitter !=null&&!detailEmitter.isDisposed()){//如果发起新Request时,旧的Request还未完成,则终止旧的Request
-            detailEmitter.onError(new Exception());
+            detailEmitter.onComplete();
         }
         setNewObservableDetail();
         detailObservable

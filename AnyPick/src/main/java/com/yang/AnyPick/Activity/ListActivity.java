@@ -498,9 +498,11 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 Logger.d("error");
-                Toast.makeText(ListActivity.this,"Network connection failure",Toast.LENGTH_SHORT).show();
                 disposable.dispose();
                 isNextPage=false;
+                Toast.makeText(ListActivity.this,"Network connection failure",Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+                isRefreshing=0;
             }
 
             @Override
