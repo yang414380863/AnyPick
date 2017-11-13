@@ -1,53 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.yang.AnyPick">
+    package="com.yang.AnyPick">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name="com.yang.AnyPick.basic.MyApplication"
+        android:name=".basic.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme2">
+        <activity android:name=".activity.Login">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-        <activity android:name="com.yang.AnyPick.Activity.Login">
-            <intent-filter >
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.ListActivity"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name=".activity.DetailActivity"
+            android:launchMode="singleTask"/>
+        <activity
+            android:name=".activity.ViewPicture"
+            android:launchMode="singleTask"/>
+        <activity android:name=".activity.AddWebsite"/>
+        <activity android:name=".activity.AddWebsiteWithJson"/>
 
-        <activity
-            android:name="com.yang.AnyPick.Activity.ListActivity"
-            android:launchMode="singleTask">
-        </activity>
-        <activity
-            android:name="com.yang.AnyPick.Activity.DetailActivity"
-            android:launchMode="singleTask">
-        </activity>
-        <activity
-            android:name="com.yang.AnyPick.Activity.ViewPicture"
-            android:launchMode="singleTask">
-        </activity>
-        <activity android:name=".Activity.AddWebsite">
-        </activity>
-        <activity android:name=".Activity.AddWebsiteWithJson">
-        </activity>
         <service
-            android:name="com.yang.AnyPick.download.DownloadService"
+            android:name=".download.DownloadService"
             android:enabled="true"
-            android:exported="true">
-        </service>
+            android:exported="true"/>
+        <service
+            android:name=".PushService"
+            android:enabled="true"
+            android:exported="true" />
     </application>
 
 </manifest>

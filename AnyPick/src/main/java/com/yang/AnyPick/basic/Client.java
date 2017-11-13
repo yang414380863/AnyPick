@@ -5,6 +5,8 @@ package com.yang.AnyPick.basic;
  */
 
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,6 +35,26 @@ public class Client {
                 }catch (IOException e){
                     e.printStackTrace();
                     emitter.onNext("error");
+                }
+            }
+        }).start();
+    }
+
+    public void sendForResult(final String s){
+        new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try (Socket socket = new Socket(ServerIP, PORT)){
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+                    out.println(s);//输出到服务器
+                    LogUtil.d("send: "+s);
+                    String res=in.readLine();//返回服务器返回的内容
+                    LogUtil.d("get: "+res);
+                    EventBus.getDefault().post( res);
+                }catch (IOException e){
+                    e.printStackTrace();
+                    EventBus.getDefault().post("error");
                 }
             }
         }).start();

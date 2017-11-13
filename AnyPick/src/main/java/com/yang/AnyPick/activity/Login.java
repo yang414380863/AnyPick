@@ -1,4 +1,4 @@
-package com.yang.AnyPick.Activity;
+package com.yang.AnyPick.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,10 +14,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.yang.AnyPick.PushService;
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.LogUtil;
-import com.yang.AnyPick.basic.MyApplication;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -40,7 +40,14 @@ public class Login extends AppCompatActivity {
     private boolean hasLogin;
     private Intent intent;
 
-
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.login);
+        init();
+        loginInit();
+        UIInit();
+    }
 
     //初始化数据
     private void init(){
@@ -51,17 +58,10 @@ public class Login extends AppCompatActivity {
         username=pref.getString("username","");
         password=pref.getString("password","");
         isRemember=pref.getBoolean("rememberPassword",false);
-        intent=new Intent(Login.this,ListActivity.class);
-        if (isRemember){
-            //自动填写帐号密码
-            accountEdit.setText(username);
-            passwordEdit.setText(password);
-            rememberPass.setChecked(true);
-        }
-        hasLogin=pref.getBoolean("hasLogin",false);
-        if (hasLogin){//已登录 直接自动登录
-            login();
-        }
+
+    }
+
+    private boolean isPush(){
         /*if (isPushService()){
             //通过点击推送启动
             //发送一个点击了推送的广播,使不需要的Activity关闭
@@ -77,8 +77,51 @@ public class Login extends AppCompatActivity {
             //通过点击APP启动
             startPushService();
         }*/
-
+        return false;
     }
+
+    private void loginInit(){
+        intent=new Intent(Login.this,ListActivity.class);
+        if (isRemember){
+            //自动填写帐号密码
+            accountEdit.setText(username);
+            passwordEdit.setText(password);
+            rememberPass.setChecked(true);
+        }
+        hasLogin=pref.getBoolean("hasLogin",false);
+        if (isPush()){
+            //todo如果是点击推送进来的 设置index
+        }
+        if (hasLogin){//已登录 直接自动登录
+            login();
+        }
+    }
+
+    private void UIInit(){
+        ImageView loginBackground=(ImageView)findViewById(R.id.login_background);
+        RequestOptions options = new RequestOptions().centerCrop();
+        Glide
+                .with(this)
+                .load(R.drawable.login)
+                .apply(options)
+                .into(loginBackground);
+        Button login=(Button)findViewById(R.id.login);
+        login.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
+        Button visitor=(Button)findViewById(R.id.visitor);
+        visitor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
     //登录
     private void login(){
         final String username=accountEdit.getText().toString();
@@ -175,36 +218,5 @@ public class Login extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-    }
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
-        init();
-        UIInit();
-    }
-    private void UIInit(){
-        ImageView loginBackground=(ImageView)findViewById(R.id.login_background);
-        RequestOptions options = new RequestOptions().centerCrop();
-        Glide
-                .with(this)
-                .load(R.drawable.login)
-                .apply(options)
-                .into(loginBackground);
-        Button login=(Button)findViewById(R.id.login);
-        login.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                login();
-            }
-        });
-        Button visitor=(Button)findViewById(R.id.visitor);
-        visitor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(intent);
-                finish();
-            }
-        });
     }
 }

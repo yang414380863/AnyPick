@@ -1,4 +1,4 @@
-package com.yang.AnyPick.Activity;
+package com.yang.AnyPick.activity;
 
 
 import android.content.BroadcastReceiver;

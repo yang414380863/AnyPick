@@ -1,4 +1,4 @@
-package com.yang.AnyPick.Activity;
+package com.yang.AnyPick.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,10 +31,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
+import com.yang.AnyPick.PushService;
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.LogUtil;
-import com.yang.AnyPick.basic.MyApplication;
 import com.yang.AnyPick.web.*;
 
 import java.util.ArrayList;
@@ -116,6 +116,7 @@ public class ListActivity extends AppCompatActivity {
         init();
         initWebsiteList();
         loginJudge();
+        pushServiceInit();
         UIInit();
         menuInit();
         addWebsite();
@@ -279,6 +280,20 @@ public class ListActivity extends AppCompatActivity {
             userIcon.setImageResource(R.drawable.ic_login);
         }
     }
+
+
+    private void pushServiceInit(){
+        if (!PushService.isRunning()){
+            startPushService();
+        }
+    }
+
+    private void startPushService(){
+        Intent intent=new Intent(this, PushService.class);
+        intent.putExtra("username",username);
+        startService(intent);
+    }
+
 
     private void doSignInOrOut(){
         Intent intent=new Intent(ListActivity.this,Login.class);
