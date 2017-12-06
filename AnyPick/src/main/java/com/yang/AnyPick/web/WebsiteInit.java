@@ -10,14 +10,14 @@ import com.yang.AnyPick.web.json.JsonRule;
  */
 
 public class WebsiteInit {
-    static ItemRule rulePracg =new ItemRule();
-    public final static Website Pracg =new Website("涂鸦王国","https://www.gracg.com/works/index/type/new", rulePracg);
-    static ItemRule ruleDEVIANTART=new ItemRule();
-    public final static Website DEVIANTART=new Website("Deviantart","http://www.deviantart.com/whats-hot/",ruleDEVIANTART);
-    static ItemRule ruleLEIFENG=new ItemRule();
-    public final static Website LEIFENG=new Website("雷锋网","https://www.leiphone.com/category/sponsor",ruleLEIFENG);
-    static ItemRule ruleQdaily=new ItemRule();
-    public final static Website Qdaily =new Website("好奇心日报","http://www.qdaily.com/tags/1068.html",ruleQdaily,0,1);
+    private static ItemRule rulePracg =new ItemRule();
+    private final static Website Pracg =new Website("涂鸦王国","https://www.gracg.com/works/index/type/new", rulePracg);
+    private static ItemRule ruleDEVIANTART=new ItemRule();
+    private final static Website DEVIANTART=new Website("Deviantart","http://www.deviantart.com/whats-hot/",ruleDEVIANTART);
+    private static ItemRule ruleLEIFENG=new ItemRule();
+    private final static Website LEIFENG=new Website("雷锋网","https://www.leiphone.com/category/sponsor",ruleLEIFENG);
+    private static ItemRule ruleQdaily=new ItemRule();
+    private final static Website Qdaily =new Website("好奇心日报","http://www.qdaily.com/tags/1068.html",ruleQdaily,0,1);
 
     public static Website[] websitesInit=new Website[]{LEIFENG, Qdaily, Pracg,DEVIANTART};
     public static void init(){

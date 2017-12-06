@@ -121,11 +121,11 @@ public class Browser {
             public void run() {
                 try{
                     String url=websiteNow.getIndexUrl();
-                    OkHttpClient client = new OkHttpClient();
                     if (pageNow>1){
                         url=websiteNow.getNextPageUrl();
                     }
                     LogUtil.d("Request url "+url);
+                    OkHttpClient client = new OkHttpClient();
                     final Request request = new Request.Builder()
                             .url(url)
                             .build();
@@ -135,6 +135,7 @@ public class Browser {
                         public void onFailure(Call call, IOException e) {
                             LogUtil.d("onFailure");
                             listEmitter.onError(e);
+                            call.cancel();
                         }
 
                         @Override
@@ -162,6 +163,7 @@ public class Browser {
                                     analysisJSON(s);
                                 }
                             }
+                            call.cancel();
                         }
                     });
 
@@ -200,10 +202,11 @@ public class Browser {
         sizeThisPage=list.size();
 
         //解析主要信息
+        if (SelectorAndRegex.getItemcount(doc,websiteNow)==0){
+            listEmitter.onComplete();
+            return;
+        }
         for (int i=0;i<sizeThisPage;i++){
-            if (SelectorAndRegex.getItemcount(doc,websiteNow)==0){
-                listEmitter.onComplete();
-            }
             webContentList.add(new WebItem());
             webContentList.get(i).setLink(SelectorAndRegex.getItemData(doc,websiteNow,"Link",i));
             webContentList.get(i).setTitle(SelectorAndRegex.getItemData(doc,websiteNow,"Title",i));
@@ -232,24 +235,25 @@ public class Browser {
         List<Object> thumbnails = JsonRuleConnector.getCompleteThumbnails(jsonData);
         List<Object> titles = JsonRuleConnector.getCompleteTitles(jsonData);
         String nextPage = JsonRuleConnector.getCompleteNextPage(jsonData);
-        categoryNow=categoryNow.replaceAll("categorys","categories");
         nextPageUrl=nextPage.replaceAll("category",categoryNow);
         sizeThisPage=links.size();
 
-
         //解析主要信息
+        if (links.size()==0){
+            listEmitter.onComplete();
+            return;
+        }
         for (int i=0;i<sizeThisPage;i++){
-            if (links.size()==0){
-                return;
-            }
             webContentList.add(new WebItem());
             webContentList.get(i).setLink(links.get(i).toString());
             webContentList.get(i).setTitle(titles.get(i).toString());
             webContentList.get(i).setThumbnail(thumbnails.get(i).toString());
         }
         LogUtil.d("Finish load "+webContentList.size()+" item");
+
         //解析列表的下一页
         LogUtil.d("nextPageUrl "+nextPageUrl);
+        listEmitter.onNext(webContentList);
         listEmitter.onComplete();
     }
 
@@ -282,6 +286,7 @@ public class Browser {
                         public void onFailure(Call call, IOException e) {
                             LogUtil.d("onFailure");
                             listEmitter.onError(e);
+                            call.cancel();
                         }
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
@@ -292,6 +297,7 @@ public class Browser {
                                 //发送一个加载出错的广播
                                 e.printStackTrace();
                             }
+                            call.cancel();
                         }
                     });
                 }catch (Exception e){
@@ -335,5 +341,8 @@ public class Browser {
         }else {
             //LogUtil.d(no more page");
         }
+    }
+    public void resetPage(){
+        pageNow=1;
     }
 }

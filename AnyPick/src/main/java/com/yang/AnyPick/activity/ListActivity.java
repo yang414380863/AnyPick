@@ -101,8 +101,6 @@ public class ListActivity extends AppCompatActivity {
     private Browser browser;
     //是否正在刷新
     private int isRefreshing=0;
-    //刷新位置
-    private String refreshPlace;
     //定义一个变量，来标识是否退出
     private static boolean isExit = false;
 
@@ -140,7 +138,7 @@ public class ListActivity extends AppCompatActivity {
         imageView=(ImageView)findViewById(R.id.image_view);
         collapsingToolbarLayout=(CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle("Loading...");
-        refreshPlace="top";
+        isNextPage=false;
         //ToolBar
         toolbar=(Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -356,7 +354,8 @@ public class ListActivity extends AppCompatActivity {
                 //获取最新数据并刷新
                 if (isRefreshing==0){
                     isRefreshing=1;
-                    refreshPlace="top";
+                    isNextPage=false;
+                    browser.resetPage();
                     sendRequestForList(websiteNow);
                     Log.d("refresh","top is going to refresh!");
                 }
@@ -395,7 +394,7 @@ public class ListActivity extends AppCompatActivity {
                 sendRequestForList(websites[position]);
                 swipeRefreshLayout.setRefreshing(true);
                 isRefreshing=1;
-                refreshPlace="top";
+                isNextPage=false;
                 Log.d("refresh","change website refresh!");
                 collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
                 return true;
@@ -419,7 +418,7 @@ public class ListActivity extends AppCompatActivity {
                     sendRequestForList(websiteNow);
                     swipeRefreshLayout.setRefreshing(true);
                     isRefreshing=1;
-                    refreshPlace="top";
+                    isNextPage=false;
                     Log.d("refresh","change category refresh!");
                     collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
                 }
@@ -468,7 +467,6 @@ public class ListActivity extends AppCompatActivity {
                 if(!recyclerView.canScrollVertically(1)){//检测划到了底部
                     if (isRefreshing==0){
                         isRefreshing=1;
-                        refreshPlace="bottom";
                         Log.d("refresh","bottom is going to refresh!");
                         browser.nextPage();//发送加载下一页的请求
                         isNextPage=true;
@@ -491,12 +489,12 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onSubscribe(Disposable d) {
                 disposable=d;
-                Logger.d("subscribe");
+                Logger.d("onSubscribe");
             }
 
             @Override
             public void onNext(ArrayList<WebItem> list) {
-                Logger.d("next");
+                Logger.d("onNext");
                 if (isNextPage){
                     webContentList.addAll(list);
                 }else {
@@ -508,7 +506,7 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Logger.d("error");
+                Logger.d("onError");
                 disposable.dispose();
                 isNextPage=false;
                 Toast.makeText(ListActivity.this,"Network connection failure",Toast.LENGTH_SHORT).show();
@@ -518,7 +516,7 @@ public class ListActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
-                Logger.d("complete and dispose");
+                Logger.d("onComplete and dispose");
                 disposable.dispose();
                 isNextPage=false;
             }
@@ -565,7 +563,7 @@ public class ListActivity extends AppCompatActivity {
             LogUtil.d("finish refresh!");
             adapter.getWebContents().clear();//要重新指向一次才能检测到刷新
             adapter.getWebContents().addAll(webContentList);
-            if (refreshPlace.equals("top")){
+            if (!isNextPage){
                 recyclerView.smoothScrollToPosition(0);//回到顶端
                 adapter.notifyDataSetChanged();
                 snackbar = Snackbar.make(collapsingToolbarLayout, "Loading", Snackbar.LENGTH_INDEFINITE);
@@ -573,7 +571,7 @@ public class ListActivity extends AppCompatActivity {
                 snackbar.setText("Finish Loading");
                 snackbar.setDuration(Snackbar.LENGTH_SHORT);
                 snackbar.show();
-            }else if (refreshPlace.equals("bottom")){
+            }else if (isNextPage){
                 snackbar.setText("Finish Loading");
                 snackbar.setDuration(Snackbar.LENGTH_SHORT);
                 snackbar.show();
