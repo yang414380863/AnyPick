@@ -218,8 +218,8 @@ public class Browser {
         }
         //解析列表的下一页
         if (!websiteNow.getNextPageRule().getSelector().equals("")){
-            nextPageUrl=SelectorAndRegex.getOtherData(doc,websiteNow,"NextPage",webContentList.size()+1, pageNow);
-            nextPageUrl=nextPageUrl.replaceAll("categorys","categories");
+            nextPageUrl=SelectorAndRegex.getOtherData(doc,websiteNow,"NextPage",webContentList.size()+1, pageNow+1);
+            //nextPageUrl=nextPageUrl.replaceAll("categorys","categories");
         }
         LogUtil.d("nextPageUrl "+nextPageUrl);
         listEmitter.onNext(webContentList);

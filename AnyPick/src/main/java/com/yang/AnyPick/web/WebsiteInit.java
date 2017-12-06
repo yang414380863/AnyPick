@@ -10,8 +10,8 @@ import com.yang.AnyPick.web.json.JsonRule;
  */
 
 public class WebsiteInit {
-    static ItemRule rulePOOCG=new ItemRule();
-    public final static Website POOCG=new Website("Poocg","https://www.poocg.com/works/index/type/new",rulePOOCG);
+    static ItemRule rulePracg =new ItemRule();
+    public final static Website Pracg =new Website("涂鸦王国","https://www.gracg.com/works/index/type/new", rulePracg);
     static ItemRule ruleDEVIANTART=new ItemRule();
     public final static Website DEVIANTART=new Website("Deviantart","http://www.deviantart.com/whats-hot/",ruleDEVIANTART);
     static ItemRule ruleLEIFENG=new ItemRule();
@@ -19,19 +19,19 @@ public class WebsiteInit {
     static ItemRule ruleQdaily=new ItemRule();
     public final static Website Qdaily =new Website("好奇心日报","http://www.qdaily.com/tags/1068.html",ruleQdaily,0,1);
 
-    public static Website[] websitesInit=new Website[]{LEIFENG, Qdaily,POOCG,DEVIANTART};
+    public static Website[] websitesInit=new Website[]{LEIFENG, Qdaily, Pracg,DEVIANTART};
     public static void init(){
 
-        POOCG.setItemSelector("li:has(div.imgbox)");
-        rulePOOCG.setLinkRule(new Rule("div.imgbox > a[href]","attr","href"));
-        rulePOOCG.setThumbnailRule(new Rule("div.imgbox > a > img[src]","attr","src"));
-        rulePOOCG.setTitleRule(new Rule("div.infobox > p.titles","text"));
-        POOCG.setDetailItemSelector("img[style*=max-width]");
-        rulePOOCG.setImgRule(new Rule("*","attr","src"
-                ,"(https:\\/\\/imagescdn\\.poocg\\.me\\/uploadfile\\/photo\\/[0-9]{4}\\/[0-9]{1,2}\\/[a-z|0-9]+\\.[a-z]+)","$1"));
-        POOCG.setNextPageRule(new Rule("a#pagenav","attr","href"));
-        POOCG.setCategory(new String[]{"最新","https://www.poocg.com/works/index/type/new","新赞","https://www.poocg.com/works/index/type/love","热门","https://www.poocg.com/works/index/type/hot"
-                ,"精华","https://www.poocg.com/works/index/type/best","推荐","https://www.poocg.com/works/index/type/rem"});
+        Pracg.setItemSelector("li:has(div.imgbox)");
+        rulePracg.setLinkRule(new Rule("div.imgbox > a[href]","attr","href"));
+        rulePracg.setThumbnailRule(new Rule("div.imgbox > a > img[src]","attr","src"));
+        rulePracg.setTitleRule(new Rule("div.infobox > p.titles","text"));
+        Pracg.setDetailItemSelector("img[style*=max-width]");
+        rulePracg.setImgRule(new Rule("*","attr","src"
+                ,"([a-zA-z]+://[^\\s]*)!","$1"));
+        Pracg.setNextPageRule(new Rule("li[class=active] > a[href]","attr","href","(https://www.gracg.com/works/index/type/[a-z]+)","$1/page/!page/"));
+        Pracg.setCategory(new String[]{"最新","https://www.gracg.com/works/index/type/new","新赞","https://www.gracg.com/works/index/type/love","热门","https://www.gracg.com/works/index/type/hot"
+                ,"精华","https://www.gracg.com/works/index/type/best","推荐","https://www.gracg.com/works/index/type/rem"});
 
         DEVIANTART.setItemSelector("span[class*=thumb]:has(img[data-sigil=torpedo-img])");
         ruleDEVIANTART.setLinkRule(new Rule("a.torpedo-thumb-link","attr","href"));
@@ -39,7 +39,7 @@ public class WebsiteInit {
         ruleDEVIANTART.setTitleRule(new Rule("span.info > span.title-wrap > span.title","text"));
         DEVIANTART.setDetailItemSelector("div[class=dev-view-deviation]");
         ruleDEVIANTART.setImgRule(new Rule("img[class=dev-content-full]","attr","src"));
-        DEVIANTART.setNextPageRule(new Rule("a.selected","attr","href","(http:\\/\\/www\\.deviantart\\.com\\/[a-z|-]+\\/)","$1?offset=!size"));
+        DEVIANTART.setNextPageRule(new Rule("a.selected","attr","href","([a-zA-z]+://[^\\s]*)","$1?offset=!size"));
         DEVIANTART.setCategory(new String[]{"Newest","http://www.deviantart.com/newest/","What's Hot","http://www.deviantart.com/whats-hot/"
                 ,"Undiscovered","http://www.deviantart.com/undiscovered/","Popular 24 hours","http://www.deviantart.com/popular-24-hours/","Popular All Time","http://www.deviantart.com/popular-all-time/"});
 

@@ -31,7 +31,7 @@ public class PushService extends Service {
 
     private static boolean isRunning;
     //唤醒间隔
-    private static final int TEN_MINIUTE=10*60*1000;
+    private static final int TEN_MINUTE=10*60*1000;
     private static final int TEN_SECOND=10*1000;
     private static int intervalTime;
 
@@ -40,7 +40,7 @@ public class PushService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        intervalTime=TEN_SECOND;
+        intervalTime=TEN_MINUTE;
         isRunning=false;
         EventBus.getDefault().register( this );
     }
