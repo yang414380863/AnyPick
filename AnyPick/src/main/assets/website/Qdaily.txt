@@ -1,0 +1,89 @@
+﻿{
+    "JsonIndex": 0,
+    "JsonNext": 1,
+    "category": [
+        "长文章",
+        "http://www.qdaily.com/tags/1068.html",
+        "10个图",
+        "http://www.qdaily.com/tags/1615.html",
+        "TOP15",
+        "http://www.qdaily.com/tags/29.html",
+        "商业",
+        "http://www.qdaily.com/categories/18.html",
+        "智能",
+        "http://www.qdaily.com/categories/4.html",
+        "设计",
+        "http://www.qdaily.com/categories/17.html",
+        "时尚",
+        "http://www.qdaily.com/categories/19.html",
+        "娱乐",
+        "http://www.qdaily.com/categories/3.html",
+        "城市",
+        "http://www.qdaily.com/categories/5.html",
+        "游戏",
+        "http://www.qdaily.com/categories/54.html"
+    ],
+    "categoryRule": {
+        "method": "html",
+        "regex": "data-lastkey\\=\"([0-9]+)\" data-([a-z]+)id\\=\"([0-9]+)\"",
+        "replace": "$2s/$2more/$3/",
+        "selector": "div[class=page-content]"
+    },
+    "detailItemSelector": "div.detail > p,div.detail > div[class*=images]",
+    "indexUrl": "http://www.qdaily.com/tags/1068.html",
+    "itemRule": {
+        "JsonLinkRule": {
+            "headString": "http://www.qdaily.com/articles/",
+            "jsonPath": "$.data.feeds[*].post.id",
+            "tailString": ".html"
+        },
+        "JsonNextPageRule": {
+            "headString": "http://www.qdaily.com/category/",
+            "jsonPath": "$.data.last_key",
+            "tailString": ".json"
+        },
+        "JsonThumbnailRule": {
+            "jsonPath": "$.data.feeds[*].image"
+        },
+        "JsonTitleRule": {
+            "jsonPath": "$.data.feeds[*].post.title"
+        },
+        "articleRule": {
+            "method": "text",
+            "selector": "p"
+        },
+        "imgRule": {
+            "attribute": "data-src",
+            "method": "attr",
+            "selector": "figure > img[data-ratio]"
+        },
+        "linkRule": {
+            "attribute": "href",
+            "method": "attr",
+            "regex": "(.*)",
+            "replace": "http://www.qdaily.com$1",
+            "selector": "a[href]"
+        },
+        "thumbnailRule": {
+            "attribute": "data-src",
+            "method": "attr",
+            "selector": "div[class*=hd] > div >img"
+        },
+        "titleRule": {
+            "attribute": "alt",
+            "method": "attr",
+            "selector": "div[class*=hd] > div >img"
+        }
+    },
+    "itemSelector": "div[class*=packery-item] > a[href]",
+    "nextPageDetailRule": {
+        "selector": ""
+    },
+    "nextPageRule": {
+        "method": "html",
+        "regex": "data-lastkey\\=\"([0-9]+)\" data-([a-z]+)id\\=\"([0-9]+)\"",
+        "replace": "http://www.qdaily.com/$2s/$2more/$3/$1.json",
+        "selector": "div[class=page-content]"
+    },
+    "webSiteName": "好奇心日报"
+}

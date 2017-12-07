@@ -1,6 +1,7 @@
-package com.yang.AnyPick.web;
+package com.yang.AnyPick.basic;
 
 import com.google.gson.Gson;
+import com.yang.AnyPick.web.Website;
 
 
 /**
@@ -13,7 +14,7 @@ public class JsonUtils {
         return gson.toJson(object);
     }
 
-    public static Website JsonToObject(String string){
+    public static Website JsonToWebsite(String string){
         Gson gson = new Gson();
         return gson.fromJson(string,Website.class);
     }

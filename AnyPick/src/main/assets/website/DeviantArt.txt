@@ -1,0 +1,69 @@
+﻿{
+    "JsonIndex": 0,
+    "JsonNext": 0,
+    "category": [
+        "Newest",
+        "http://www.deviantart.com/newest/",
+        "What's Hot",
+        "http://www.deviantart.com/whats-hot/",
+        "Undiscovered",
+        "http://www.deviantart.com/undiscovered/",
+        "Popular 24 hours",
+        "http://www.deviantart.com/popular-24-hours/",
+        "Popular All Time",
+        "http://www.deviantart.com/popular-all-time/"
+    ],
+    "categoryRule": {
+        "selector": ""
+    },
+    "detailItemSelector": "div[class=dev-view-deviation]",
+    "indexUrl": "http://www.deviantart.com/whats-hot/",
+    "itemRule": {
+        "JsonLinkRule": {
+            "jsonPath": ""
+        },
+        "JsonNextPageRule": {
+            "jsonPath": ""
+        },
+        "JsonThumbnailRule": {
+            "jsonPath": ""
+        },
+        "JsonTitleRule": {
+            "jsonPath": ""
+        },
+        "articleRule": {
+            "selector": ""
+        },
+        "imgRule": {
+            "attribute": "src",
+            "method": "attr",
+            "selector": "img[class=dev-content-full]"
+        },
+        "linkRule": {
+            "attribute": "href",
+            "method": "attr",
+            "selector": "a.torpedo-thumb-link"
+        },
+        "thumbnailRule": {
+            "attribute": "src",
+            "method": "attr",
+            "selector": "a.torpedo-thumb-link > img[data-sigil=torpedo-img]"
+        },
+        "titleRule": {
+            "method": "text",
+            "selector": "span.info > span.title-wrap > span.title"
+        }
+    },
+    "itemSelector": "span[class*=thumb]:has(img[data-sigil=torpedo-img])",
+    "nextPageDetailRule": {
+        "selector": ""
+    },
+    "nextPageRule": {
+        "attribute": "href",
+        "method": "attr",
+        "regex": "([a-zA-z]+://[^\\s]*)",
+        "replace": "$1?offset=!size",
+        "selector": "a.selected"
+    },
+    "webSiteName": "DeviantArt"
+}

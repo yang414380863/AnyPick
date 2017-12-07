@@ -34,10 +34,13 @@ import com.orhanobut.logger.Logger;
 import com.yang.AnyPick.PushService;
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
+import com.yang.AnyPick.basic.FileUtil;
+import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -47,8 +50,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-
-import static com.yang.AnyPick.web.WebsiteInit.websitesInit;
 
 //列表Activity
 public class ListActivity extends AppCompatActivity {
@@ -88,7 +89,7 @@ public class ListActivity extends AppCompatActivity {
     private String password;
     //初始化网站LIST
     static Website[] websites;
-    static String[] websitesString;
+    static String[] websiteNameList;
     //LIST内容
     private ArrayList<WebItem> webContentList;
     //当前显示的网站
@@ -128,7 +129,6 @@ public class ListActivity extends AppCompatActivity {
         hasLogin=pref.getBoolean("hasLogin",false);
         username=pref.getString("username","");
         password=pref.getString("password","");
-        editor=pref.edit();
         browser=Browser.getInstance();
         webContentList=new ArrayList<>();
         adapter=new ListAdapter(this);
@@ -156,33 +156,32 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void initWebsiteList(){
-        String temp=pref.getString("websitesString","");
+        String temp=pref.getString("websiteNameList","");
         if (temp.equals("")||!hasLogin){
             //List为空 或者游客身份
-            WebsiteInit.init();
-            websites=websitesInit;
-            websitesString=new String[]{"雷锋网","好奇心日报","Poocg","Deviantart"};
-            StringBuilder s=new StringBuilder(websitesString[0]);
-            for (int i=1;i<websitesString.length;i++){
-                s=s.append(",").append(websitesString[i]);
+            websiteNameList=WebsiteInit.getWebsiteNameList();
+            websites=WebsiteInit.getWebsiteList();
+            StringBuilder s=new StringBuilder(websiteNameList[0]);
+            for (int i=1;i<websiteNameList.length;i++){
+                s=s.append(",").append(websiteNameList[i]);
             }
-            editor.putString("websitesString", s.toString());
+            editor=pref.edit();
+            editor.putString("websiteNameList", s.toString());
             for (int i=0;i<websites.length;i++){
-                editor.putString(websites[i].getWebSiteName(),JsonUtils.ObjectToJson(websites[i]));
+                editor.putString(websites[i].getWebSiteName(), JsonUtils.ObjectToJson(websites[i]));
                 LogUtil.d(pref.getString(websites[i].getWebSiteName(),""));
             }
             editor.apply();
         }else {
             //todo:从服务器下载WebsiteList 服务器加一列WebsiteList
-            //读"websitesString"个数->创建数组->String->Object
-            String[] websitesStringNew=pref.getString("websitesString","").split(",");
-            Website[] websitesNew=new com.yang.AnyPick.web.Website[websitesStringNew.length];
-            for (int i=0;i<websitesStringNew.length;i++){
-                String websiteInJson=pref.getString(websitesStringNew[i],"");
-                websitesNew[i]= JsonUtils.JsonToObject(websiteInJson);
+            //读"websiteNameList"个数->创建数组->String->Object
+            String[] websiteNameNew=pref.getString("websiteNameList","").split(",");
+            Website[] websitesNew=new Website[websiteNameNew.length];
+            for (int i=0;i<websiteNameNew.length;i++){
+                websitesNew[i]= JsonUtils.JsonToWebsite(FileUtil.readFileFromAssets("website/"+websiteNameNew[i]));
             }
             websites=websitesNew;
-            websitesString=websitesStringNew;
+            websiteNameList=websiteNameNew;
         }
     }
 
@@ -297,6 +296,7 @@ public class ListActivity extends AppCompatActivity {
         Intent intent=new Intent(ListActivity.this,Login.class);
         if (hasLogin){
             //点击ICON注销
+            editor=pref.edit();
             editor.putBoolean("hasLogin",false);
             editor.putString("mark","");
             editor.apply();
@@ -759,6 +759,7 @@ public class ListActivity extends AppCompatActivity {
         }
     }
 
+    //todo
     public void forPush(String index){
         adapter2.getWebContents().clear();//要重新指向一次才能检测到刷新
         adapter2.notifyDataSetChanged();

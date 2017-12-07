@@ -1,0 +1,81 @@
+﻿{
+    "JsonIndex": 0,
+    "JsonNext": 0,
+    "category": [
+        "业界",
+        "https://www.leiphone.com/category/sponsor",
+        "人工智能",
+        "http://www.leiphone.com/category/ai",
+        "智能驾驶",
+        "http://www.leiphone.com/category/transportation",
+        "网络安全",
+        "http://www.leiphone.com/category/letshome",
+        "AR/VR",
+        "http://www.leiphone.com/category/arvr",
+        "机器人",
+        "http://www.leiphone.com/category/robot",
+        "Fintect",
+        "http://www.leiphone.com/category/fintech",
+        "物联网",
+        "http://www.leiphone.com/category/iot",
+        "未来医疗",
+        "http://www.leiphone.com/category/aihealth",
+        "智能硬件",
+        "http://www.leiphone.com/category/weiwu",
+        "AI+",
+        "http://www.leiphone.com/category/aijuejinzhi"
+    ],
+    "categoryRule": {
+        "selector": ""
+    },
+    "detailItemSelector": "div[class=lph-article-comView] > p",
+    "indexUrl": "https://www.leiphone.com/category/sponsor",
+    "itemRule": {
+        "JsonLinkRule": {
+            "jsonPath": ""
+        },
+        "JsonNextPageRule": {
+            "jsonPath": ""
+        },
+        "JsonThumbnailRule": {
+            "jsonPath": ""
+        },
+        "JsonTitleRule": {
+            "jsonPath": ""
+        },
+        "articleRule": {
+            "method": "text",
+            "selector": "p"
+        },
+        "imgRule": {
+            "attribute": "src",
+            "method": "attr",
+            "selector": "p img[alt]"
+        },
+        "linkRule": {
+            "attribute": "href",
+            "method": "attr",
+            "selector": "div.img > a[target]"
+        },
+        "thumbnailRule": {
+            "attribute": "data-original",
+            "method": "attr",
+            "selector": "div.img > a[target] > img.lazy"
+        },
+        "titleRule": {
+            "attribute": "title",
+            "method": "attr",
+            "selector": "div.img > a[target] > img.lazy"
+        }
+    },
+    "itemSelector": "li > div.box:has(div.img)",
+    "nextPageDetailRule": {
+        "selector": ""
+    },
+    "nextPageRule": {
+        "attribute": "href",
+        "method": "attr",
+        "selector": "div.lph-page > a.next"
+    },
+    "webSiteName": "雷锋网"
+}

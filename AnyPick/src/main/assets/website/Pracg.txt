@@ -1,0 +1,71 @@
+﻿{
+    "JsonIndex": 0,
+    "JsonNext": 0,
+    "category": [
+        "最新",
+        "https://www.gracg.com/works/index/type/new",
+        "新赞",
+        "https://www.gracg.com/works/index/type/love",
+        "热门",
+        "https://www.gracg.com/works/index/type/hot",
+        "精华",
+        "https://www.gracg.com/works/index/type/best",
+        "推荐",
+        "https://www.gracg.com/works/index/type/rem"
+    ],
+    "categoryRule": {
+        "selector": ""
+    },
+    "detailItemSelector": "img[style*=max-width]",
+    "indexUrl": "https://www.gracg.com/works/index/type/new",
+    "itemRule": {
+        "JsonLinkRule": {
+            "jsonPath": ""
+        },
+        "JsonNextPageRule": {
+            "jsonPath": ""
+        },
+        "JsonThumbnailRule": {
+            "jsonPath": ""
+        },
+        "JsonTitleRule": {
+            "jsonPath": ""
+        },
+        "articleRule": {
+            "selector": ""
+        },
+        "imgRule": {
+            "attribute": "src",
+            "method": "attr",
+            "regex": "([a-zA-z]+://[^\\s]*)!",
+            "replace": "$1",
+            "selector": "*"
+        },
+        "linkRule": {
+            "attribute": "href",
+            "method": "attr",
+            "selector": "div.imgbox > a[href]"
+        },
+        "thumbnailRule": {
+            "attribute": "src",
+            "method": "attr",
+            "selector": "div.imgbox > a > img[src]"
+        },
+        "titleRule": {
+            "method": "text",
+            "selector": "div.infobox > p.titles"
+        }
+    },
+    "itemSelector": "li:has(div.imgbox)",
+    "nextPageDetailRule": {
+        "selector": ""
+    },
+    "nextPageRule": {
+        "attribute": "href",
+        "method": "attr",
+        "regex": "(https://www.gracg.com/works/index/type/[a-z]+)",
+        "replace": "$1/page/!page/",
+        "selector": "li[class=active] > a[href]"
+    },
+    "webSiteName": "涂鸦王国"
+}

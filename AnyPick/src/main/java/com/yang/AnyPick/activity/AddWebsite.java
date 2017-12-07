@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.LogUtil;
-import com.yang.AnyPick.web.JsonUtils;
+import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.web.Website;
 import com.yang.AnyPick.web.html.ItemRule;
 import com.yang.AnyPick.web.html.Rule;
@@ -136,11 +136,11 @@ public class AddWebsite extends AppCompatActivity {
                     }
                 }
 
-                String[] websitesStringNew=new String[ListActivity.websitesString.length+1];
-                for (int i = 0; i< ListActivity.websitesString.length; i++){
-                    websitesStringNew[i]= ListActivity.websitesString[i];
+                String[] websitesStringNew=new String[ListActivity.websiteNameList.length+1];
+                for (int i = 0; i< ListActivity.websiteNameList.length; i++){
+                    websitesStringNew[i]= ListActivity.websiteNameList[i];
                 }
-                websitesStringNew[ListActivity.websitesString.length]=websiteNew.getWebSiteName();
+                websitesStringNew[ListActivity.websiteNameList.length]=websiteNew.getWebSiteName();
                 //websitesStringNew个数=旧的+1->替换websitesString->存到"websitesString"
                 pref= PreferenceManager.getDefaultSharedPreferences(AddWebsite.this);
                 editor=pref.edit();
@@ -160,10 +160,10 @@ public class AddWebsite extends AppCompatActivity {
                 Website[] websitesNew2=new Website[websitesStringNew2.length];
                 for (int i=0;i<websitesStringNew2.length;i++){
                     String websiteInJson=pref.getString(websitesStringNew2[i],"");
-                    websitesNew2[i]=JsonUtils.JsonToObject(websiteInJson);
+                    websitesNew2[i]=JsonUtils.JsonToWebsite(websiteInJson);
                 }
                 ListActivity.websites=websitesNew2;
-                ListActivity.websitesString=websitesStringNew2;
+                ListActivity.websiteNameList=websitesStringNew2;
                 for (int i=0;i<websitesStringNew2.length;i++){
                     LogUtil.d(pref.getString(websitesStringNew2[i],""));
                 }

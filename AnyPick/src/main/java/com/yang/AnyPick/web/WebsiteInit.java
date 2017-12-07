@@ -1,8 +1,8 @@
 package com.yang.AnyPick.web;
 
-import com.yang.AnyPick.web.html.ItemRule;
-import com.yang.AnyPick.web.html.Rule;
-import com.yang.AnyPick.web.json.JsonRule;
+import com.yang.AnyPick.basic.FileUtil;
+import com.yang.AnyPick.basic.JsonUtils;
+import com.yang.AnyPick.basic.LogUtil;
 
 
 /**
@@ -10,6 +10,7 @@ import com.yang.AnyPick.web.json.JsonRule;
  */
 
 public class WebsiteInit {
+    /**
     private static ItemRule rulePracg =new ItemRule();
     private final static Website Pracg =new Website("涂鸦王国","https://www.gracg.com/works/index/type/new", rulePracg);
     private static ItemRule ruleDEVIANTART=new ItemRule();
@@ -19,9 +20,26 @@ public class WebsiteInit {
     private static ItemRule ruleQdaily=new ItemRule();
     private final static Website Qdaily =new Website("好奇心日报","http://www.qdaily.com/tags/1068.html",ruleQdaily,0,1);
 
-    public static Website[] websitesInit=new Website[]{LEIFENG, Qdaily, Pracg,DEVIANTART};
-    public static void init(){
+    public static Website[] websiteList=new Website[]{LEIFENG, Qdaily, Pracg,DEVIANTART};*/
+    private static Website[] websiteList;
+    private static String[] websiteNameList;
+    private static int length;
 
+    public static String[] getWebsiteNameList(){
+        websiteNameList =FileUtil.getListFromAssets("website");
+        length=websiteNameList.length;
+        LogUtil.d("Find total"+ length+ "website");
+        return websiteNameList;
+    }
+
+    public static Website[] getWebsiteList(){
+        websiteList =new Website[length];
+        for (int i = 0; i< length; i++){
+            LogUtil.d("Find "+ websiteNameList[i]);
+            websiteList[i]= JsonUtils.JsonToWebsite(FileUtil.readFileFromAssets("website/"+ websiteNameList[i]));
+        }
+        return websiteList;
+        /**
         Pracg.setItemSelector("li:has(div.imgbox)");
         rulePracg.setLinkRule(new Rule("div.imgbox > a[href]","attr","href"));
         rulePracg.setThumbnailRule(new Rule("div.imgbox > a > img[src]","attr","src"));
@@ -72,6 +90,6 @@ public class WebsiteInit {
         ruleQdaily.setJsonTitleRule(new JsonRule("$.data.feeds[*].post.title"));
         ruleQdaily.setJsonLinkRule(new JsonRule("$.data.feeds[*].post.id", "http://www.qdaily.com/articles/", ".html"));
         ruleQdaily.setJsonNextPageRule(new JsonRule("$.data.last_key","http://www.qdaily.com/category/",".json"));
-
+         */
     }
 }
