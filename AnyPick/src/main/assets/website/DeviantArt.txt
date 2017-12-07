@@ -3,21 +3,21 @@
     "JsonNext": 0,
     "category": [
         "Newest",
-        "http://www.deviantart.com/newest/",
+        "https://www.deviantart.com/newest/",
         "What's Hot",
-        "http://www.deviantart.com/whats-hot/",
+        "https://www.deviantart.com/whats-hot/",
         "Undiscovered",
-        "http://www.deviantart.com/undiscovered/",
+        "https://www.deviantart.com/undiscovered/",
         "Popular 24 hours",
-        "http://www.deviantart.com/popular-24-hours/",
+        "https://www.deviantart.com/popular-24-hours/",
         "Popular All Time",
-        "http://www.deviantart.com/popular-all-time/"
+        "https://www.deviantart.com/popular-all-time/"
     ],
     "categoryRule": {
         "selector": ""
     },
     "detailItemSelector": "div[class=dev-view-deviation]",
-    "indexUrl": "http://www.deviantart.com/whats-hot/",
+    "indexUrl": "https://www.deviantart.com/whats-hot/",
     "itemRule": {
         "JsonLinkRule": {
             "jsonPath": ""

@@ -281,7 +281,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void pushServiceInit(){
         if (!PushService.isRunning()){
-            //todo:startPushService();
+            startPushService();
         }
     }
 

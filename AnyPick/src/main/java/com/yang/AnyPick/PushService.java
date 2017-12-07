@@ -32,6 +32,7 @@ public class PushService extends Service {
     private static boolean isRunning;
     //唤醒间隔
     private static final int TEN_MINUTE=10*60*1000;
+    private static final int ONE_MINUTE=10*1000;
     private static final int TEN_SECOND=10*1000;
     private static int intervalTime;
 
@@ -40,7 +41,7 @@ public class PushService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        intervalTime=TEN_MINUTE;
+        intervalTime=ONE_MINUTE;
         isRunning=false;
         EventBus.getDefault().register( this );
     }
@@ -48,7 +49,9 @@ public class PushService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         isRunning=true;
-        username=intent.getExtras().getString("username");
+        if (intent!=null&&intent.hasExtra("username")){
+            username=intent.getExtras().getString("username");
+        }
         if (!username.equals("")){
             new Thread(new Runnable() {
                 @Override
@@ -84,7 +87,13 @@ public class PushService extends Service {
     @Subscribe(threadMode = ThreadMode.BACKGROUND, sticky = true)
     public void judgePush ( String event){
         Logger.d("get push event: "+event);
-        if (event!=""){
+        if (event!=null&&event!=""){
+            String[] res=event.split(";");
+            LogUtil.d("Length "+res.length);
+            for (int i=0;i<res.length;i++){
+                String[] s=res[i].split(",");
+                LogUtil.d("Time "+s[2]);
+            }
             //todo 对比时间
             //todo 显示通知
             //todo 点击通知 跳转ListActivity 传Index 关闭其他活动

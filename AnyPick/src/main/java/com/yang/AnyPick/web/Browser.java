@@ -45,7 +45,6 @@ public class Browser {
     private int sizeThisPage;
     private String nextPageUrl;
     private int pageNow =1;
-    private Date latestUpdate;
     private String categoryNow;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -186,13 +185,12 @@ public class Browser {
         websiteNow =website;
         editor.putString("lastIndex",websiteNow.getIndexUrl());
         editor.apply();//保存最后一次打开的网页URL
-        Date date = new Date(System.currentTimeMillis());
-        latestUpdate=date;
+        Date dateNow = new Date(System.currentTimeMillis());
         SharedPreferences pref;
         pref= PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
         SharedPreferences.Editor editor;
         editor=pref.edit();
-        editor.putString("latestUpdate",date.toString());
+        editor.putString(websiteNow.getIndexUrl(),dateNow.toString());
         editor.apply();
     }
 
