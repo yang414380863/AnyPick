@@ -3,25 +3,25 @@
     "JsonNext": 1,
     "category": [
         "长文章",
-        "www.qdaily.com/tags/1068.html",
+        "https://www.qdaily.com/tags/1068.html",
         "10个图",
-        "www.qdaily.com/tags/1615.html",
+        "https://www.qdaily.com/tags/1615.html",
         "TOP15",
-        "www.qdaily.com/tags/29.html",
+        "https://www.qdaily.com/tags/29.html",
         "商业",
-        "www.qdaily.com/categories/18.html",
+        "https://www.qdaily.com/categories/18.html",
         "智能",
-        "www.qdaily.com/categories/4.html",
+        "https://www.qdaily.com/categories/4.html",
         "设计",
-        "www.qdaily.com/categories/17.html",
+        "https://www.qdaily.com/categories/17.html",
         "时尚",
-        "www.qdaily.com/categories/19.html",
+        "https://www.qdaily.com/categories/19.html",
         "娱乐",
-        "www.qdaily.com/categories/3.html",
+        "https://www.qdaily.com/categories/3.html",
         "城市",
-        "www.qdaily.com/categories/5.html",
+        "https://www.qdaily.com/categories/5.html",
         "游戏",
-        "www.qdaily.com/categories/54.html"
+        "https://www.qdaily.com/categories/54.html"
     ],
     "categoryRule": {
         "method": "html",
@@ -30,7 +30,7 @@
         "selector": "div[class=page-content]"
     },
     "detailItemSelector": "div.detail > p,div.detail > div[class*=images]",
-    "indexUrl": "www.qdaily.com/tags/1068.html",
+    "indexUrl": "https://www.qdaily.com/tags/1068.html",
     "itemRule": {
         "JsonLinkRule": {
             "headString": "http://www.qdaily.com/articles/",

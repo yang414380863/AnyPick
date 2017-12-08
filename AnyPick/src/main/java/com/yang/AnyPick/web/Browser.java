@@ -185,11 +185,11 @@ public class Browser {
         websiteNow =website;
         editor.putString("lastIndex",websiteNow.getIndexUrl());
         editor.apply();//保存最后一次打开的网页URL
-        Date dateNow = new Date(System.currentTimeMillis());
         SharedPreferences pref;
         pref= PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
         SharedPreferences.Editor editor;
         editor=pref.edit();
+        Long dateNow=new Date(System.currentTimeMillis()).getTime();
         editor.putString(websiteNow.getIndexUrl(),dateNow.toString());
         editor.apply();
     }

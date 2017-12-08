@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.BaseActivity;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.LogUtil;
 
@@ -26,7 +27,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class Login extends AppCompatActivity {
+public class Login extends BaseActivity {
 
     private EditText accountEdit;
     private EditText passwordEdit;
@@ -61,6 +62,7 @@ public class Login extends AppCompatActivity {
     }
 
     private boolean isPush(){
+        //todo
         /*if (isPushService()){
             //通过点击推送启动
             //发送一个点击了推送的广播,使不需要的Activity关闭

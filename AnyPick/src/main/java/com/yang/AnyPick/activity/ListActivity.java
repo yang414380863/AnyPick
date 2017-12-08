@@ -13,7 +13,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -31,16 +30,21 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
-import com.yang.AnyPick.PushService;
+import com.yang.AnyPick.push.PushService;
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.ActivityCollector;
+import com.yang.AnyPick.basic.BaseActivity;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.FileUtil;
 import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.*;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -52,7 +56,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 //列表Activity
-public class ListActivity extends AppCompatActivity {
+public class ListActivity extends BaseActivity {
     //瀑布流列表
     private RecyclerView recyclerView;
     private ListAdapter adapter;
@@ -90,6 +94,11 @@ public class ListActivity extends AppCompatActivity {
     //初始化网站LIST
     static Website[] websites;
     static String[] websiteNameList;
+
+    public static Website[] getWebsites() {
+        return websites;
+    }
+
     //LIST内容
     private ArrayList<WebItem> webContentList;
     //当前显示的网站
@@ -104,8 +113,6 @@ public class ListActivity extends AppCompatActivity {
     private int isRefreshing=0;
     //定义一个变量，来标识是否退出
     private static boolean isExit = false;
-
-    ListAdapter adapter2;
 
 
     @Override
@@ -124,6 +131,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void init(){
+        EventBus.getDefault().register(this);
         pref= PreferenceManager.getDefaultSharedPreferences(this);
         mark=pref.getString("mark","");
         hasLogin=pref.getBoolean("hasLogin",false);
@@ -186,40 +194,12 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void homepageChoose(){
-        //todo 点击推送通知后 设置index为跳转的指定的页面
-        //无推送时默认进入上次最后打开的页面
-        //无推送且之前未使用过则打开默认主页
         if (getIntent().hasExtra("index")){
-            Intent intent=getIntent();
-            String index=intent.getExtras().getString("index");
-            LogUtil.d("index:"+index);
-            boolean isFind=false;
-            for (int i=0;i<websites.length;i++){
-                if (websites[i].getCategory()==null){
-                    if (websites[i].getIndexUrl().equals(index)){
-                        websiteNow=websites[i];
-                        sendRequestForList(websiteNow);
-                        break;
-                    }else {
-                        //无Category/Index的跳过
-                        continue;
-                    }
-                }else {
-                    for (int j=0;j<websites[i].getCategory().length;j++,j++){
-                        if (websites[i].getCategory()[j+1].equals(index)){
-                            websiteNow=websites[i];
-                            websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
-                            sendRequestForList(websiteNow);
-                            isFind=true;
-                            break;
-                        }
-                    }
-                    if (isFind){
-                        break;
-                    }
-                }
-            }
+            //todo 有推送时
+
         }else {
+            //无推送时默认进入上次最后打开的页面
+            //无推送且之前未使用过则打开默认主页
             String indexNow=pref.getString("lastIndex","");
             if (indexNow.equals("")){
                 websiteNow=websites[0];
@@ -754,26 +734,46 @@ public class ListActivity extends AppCompatActivity {
             // 利用handler延迟发送更改状态信息
             mHandler.sendEmptyMessageDelayed(0, 2000);
         } else {
+            ActivityCollector.finishExcept(this);
             finish();
-            System.exit(0);
         }
     }
 
-    //todo
-    public void forPush(String index){
-        adapter2.getWebContents().clear();//要重新指向一次才能检测到刷新
-        adapter2.notifyDataSetChanged();
-
+    //点击通知之后的操作
+    @Subscribe(threadMode = ThreadMode.MAIN , sticky = true)
+    public void getPush(String event){
+        if (!event.split(" ")[0].equals("getPush")){
+            return;
+        }
+        LogUtil.d("Get Push");
+        String index=event.split(" ")[1];
+        ActivityCollector.finishExcept(ListActivity.this);
+        LogUtil.d("Push Index: "+index);
+        boolean isFind=false;
         for (int i=0;i<websites.length;i++){
             if (websites[i].getCategory()==null){
-                continue;
-            }
-            for (int j=0;j<websites[i].getCategory().length;j+=2){
-                if (websites[i].getCategory()[j+1].equals(index)){
+                if (websites[i].getIndexUrl().equals(index)){
                     websiteNow=websites[i];
-                    websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
-                    swipeRefreshLayout.setRefreshing(true);
                     sendRequestForList(websiteNow);
+                    swipeRefreshLayout.setRefreshing(true);
+                    break;
+                }else {
+                    //无Category/Index的跳过
+                    continue;
+                }
+            }else {
+                for (int j=0;j<websites[i].getCategory().length;j++,j++){
+                    if (websites[i].getCategory()[j+1].equals(index)){
+                        websiteNow=websites[i];
+                        websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
+                        sendRequestForList(websiteNow);
+                        swipeRefreshLayout.setRefreshing(true);
+                        isFind=true;
+                        break;
+                    }
+                }
+                if (isFind){
+                    break;
                 }
             }
         }

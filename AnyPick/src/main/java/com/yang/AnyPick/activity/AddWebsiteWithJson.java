@@ -13,11 +13,12 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.BaseActivity;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.web.Website;
 
-public class AddWebsiteWithJson extends AppCompatActivity {
+public class AddWebsiteWithJson extends BaseActivity {
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;

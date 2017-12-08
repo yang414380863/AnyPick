@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme2">
-        <activity android:name=".activity.Login">
+        <activity
+            android:name=".activity.Login"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,24 +30,26 @@
         </activity>
         <activity
             android:name=".activity.ListActivity"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".activity.DetailActivity"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".activity.ViewPicture"
-            android:launchMode="singleTask"/>
-        <activity android:name=".activity.AddWebsite"/>
-        <activity android:name=".activity.AddWebsiteWithJson"/>
+            android:launchMode="singleTask" />
+        <activity android:name=".activity.AddWebsite" />
+        <activity android:name=".activity.AddWebsiteWithJson" />
 
         <service
             android:name=".download.DownloadService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
         <service
-            android:name=".PushService"
+            android:name=".push.PushService"
             android:enabled="true"
             android:exported="true" />
+
+        <activity android:name=".push.PushActivity"></activity>
     </application>
 
 </manifest>

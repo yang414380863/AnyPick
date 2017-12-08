@@ -40,7 +40,7 @@ public class Client {
         }).start();
     }
 
-    public void sendForResult(final String s){
+    public void sendForResult(final String s,final String msg){
         new Thread(new Runnable() {
             @Override
             public void run(){
@@ -51,7 +51,7 @@ public class Client {
                     LogUtil.d("send: "+s);
                     String res=in.readLine();//返回服务器返回的内容
                     LogUtil.d("get: "+res);
-                    EventBus.getDefault().post( res);
+                    EventBus.getDefault().post( msg+" "+res);
                 }catch (IOException e){
                     e.printStackTrace();
                     EventBus.getDefault().post("error");

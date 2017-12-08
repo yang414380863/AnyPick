@@ -21,10 +21,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.BaseActivity;
 import com.yang.AnyPick.download.DownloadService;
 import com.github.chrisbanes.photoview.PhotoView;
 
-public class ViewPicture extends AppCompatActivity implements View.OnClickListener {
+public class ViewPicture extends BaseActivity implements View.OnClickListener {
 
     //沉浸式
     static View systemBar;

@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.BaseActivity;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.Browser;
 import com.yang.AnyPick.web.WebItem;
@@ -35,7 +36,7 @@ import static com.yang.AnyPick.R.id.collapsing_toolbar;
 
 
 //详情所在Activity
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends BaseActivity {
 
     //广播接收器
     private Receiver receiver;

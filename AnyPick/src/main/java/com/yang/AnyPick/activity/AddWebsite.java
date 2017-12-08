@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.yang.AnyPick.R;
+import com.yang.AnyPick.basic.BaseActivity;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.web.Website;
@@ -28,7 +29,7 @@ import com.yang.AnyPick.web.json.JsonRule;
 import java.util.Arrays;
 
 
-public class AddWebsite extends AppCompatActivity {
+public class AddWebsite extends BaseActivity {
 
     Website websiteNew;
 
