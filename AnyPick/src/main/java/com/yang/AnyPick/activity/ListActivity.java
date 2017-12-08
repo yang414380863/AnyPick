@@ -94,11 +94,6 @@ public class ListActivity extends BaseActivity {
     //初始化网站LIST
     static Website[] websites;
     static String[] websiteNameList;
-
-    public static Website[] getWebsites() {
-        return websites;
-    }
-
     //LIST内容
     private ArrayList<WebItem> webContentList;
     //当前显示的网站
