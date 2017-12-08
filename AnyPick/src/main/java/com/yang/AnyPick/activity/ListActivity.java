@@ -684,6 +684,7 @@ public class ListActivity extends BaseActivity {
         return hasMark;
     }
 
+    //todo: 把新增的网站保存下来 让AddWebsite返回JSON
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode==1&&requestCode==1){

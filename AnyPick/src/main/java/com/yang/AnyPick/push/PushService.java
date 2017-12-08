@@ -19,6 +19,8 @@ import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.basic.MyApplication;
+import com.yang.AnyPick.web.Website;
+import com.yang.AnyPick.web.WebsiteInit;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

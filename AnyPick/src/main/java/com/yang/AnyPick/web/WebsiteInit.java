@@ -33,6 +33,7 @@ public class WebsiteInit {
     }
 
     public static Website[] getWebsiteList(){
+        getWebsiteNameList();
         websiteList =new Website[length];
         for (int i = 0; i< length; i++){
             LogUtil.d("Find "+ websiteNameList[i]);
