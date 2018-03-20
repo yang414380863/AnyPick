@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.yang.AnyPick.activity.AddWebsite"
-    android:orientation="vertical">
+    tools:context="com.yang.AnyPick.activity.WebsiteMarket">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar4"
+        android:id="@+id/toolbar5"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
@@ -19,20 +18,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="70dp">
-        <EditText
-            android:id="@+id/json_string"
-            android:hint="JSON String"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine"/>
+            android:layout_height="match_parent">
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/market_list">
+            </ListView>
+
+        </LinearLayout>
     </ScrollView>
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/finish_add_website"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="30dp"
-        android:elevation="20dp"
-        android:src="@drawable/ic_check_white_48dp"
-        />
-</FrameLayout>
+</android.support.constraint.ConstraintLayout>

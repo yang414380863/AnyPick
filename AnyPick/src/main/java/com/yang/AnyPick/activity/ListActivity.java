@@ -64,6 +64,9 @@ public class ListActivity extends BaseActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navViewRight;
     private NavigationView navViewLeft;
+    private View navViewLeftHeader;
+    private ImageView leftBackground;
+    private ImageView rightBackground;
     //下拉刷新 监听器
     private SwipeRefreshLayout swipeRefreshLayout;
     private Snackbar snackbar;
@@ -79,13 +82,9 @@ public class ListActivity extends BaseActivity {
     //用户信息标题栏
     private TextView usernameShow;
     private ImageView userIcon;
-    //侧滑菜单
-    private View navViewLeftHeader;
-    private ImageView leftBackground;
-    private ImageView rightBackground;
-    //添加网站
-    private ImageButton addWebsite;
-    private TextView addWebsiteText;
+    //删除网站
+    private ImageButton removeWebsite;
+    private TextView removeWebsiteText;
     //登录
     private String mark;
     private boolean hasLogin;
@@ -120,7 +119,6 @@ public class ListActivity extends BaseActivity {
         pushServiceInit();
         UIInit();
         menuInit();
-        addWebsite();
         listContentInit();
         homepageChoose();
     }
@@ -154,8 +152,8 @@ public class ListActivity extends BaseActivity {
         userIcon=(ImageView)navViewLeftHeader.findViewById(R.id.user_icon);
         leftBackground=(ImageView)navViewLeftHeader.findViewById(R.id.left_background);
         rightBackground=(ImageView)navViewRight.getHeaderView(0).findViewById(R.id.right_background);
-        addWebsite=(ImageButton)navViewLeftHeader.findViewById(R.id.add_website);
-        addWebsiteText=(TextView)navViewLeftHeader.findViewById(R.id.add_website_text);
+        removeWebsite =(ImageButton)navViewLeftHeader.findViewById(R.id.remove_website);
+        removeWebsiteText =(TextView)navViewLeftHeader.findViewById(R.id.remove_website_text);
     }
 
     private void initWebsiteList(){
@@ -176,7 +174,7 @@ public class ListActivity extends BaseActivity {
             }
             editor.apply();
         }else {
-            //todo:从服务器下载WebsiteList 服务器加一列WebsiteList
+            //从服务器下载WebsiteList todo:服务器user加一列WebsiteList
             //读"websiteNameList"个数->创建数组->String->Object
             String[] websiteNameNew=pref.getString("websiteNameList","").split(",");
             Website[] websitesNew=new Website[websiteNameNew.length];
@@ -188,9 +186,280 @@ public class ListActivity extends BaseActivity {
         }
     }
 
+    private void loginJudge(){
+        if (!username.equals("")){
+            //已登录
+            usernameShow.setText("Welcome: "+username);
+            userIcon.setImageResource(R.drawable.ic_logout);
+            editor=pref.edit();
+            editor.putString("mark",mark);
+            editor.apply();
+        }else {
+            //未登录
+            usernameShow.setText("Welcome: visitor");
+            userIcon.setImageResource(R.drawable.ic_login);
+        }
+    }
+
+    private void pushServiceInit(){
+        if (!PushService.isRunning()){
+            startPushService();
+        }
+    }
+    private void startPushService(){
+        Intent intent=new Intent(this, PushService.class);
+        intent.putExtra("username",username);
+        startService(intent);
+    }
+
+    private void doSignInOrOut(){
+        Intent intent=new Intent(ListActivity.this,Login.class);
+        if (hasLogin){
+            //点击ICON注销
+            editor=pref.edit();
+            editor.putBoolean("hasLogin",false);
+            editor.putString("mark","");
+            editor.apply();
+            startActivity(intent);
+            finish();
+        }else {
+            //点击ICON登录
+            startActivity(intent);
+            finish();
+        }
+    }
+    private void UIInit(){
+        sendRequestForToolBar();
+        RequestOptions options = new RequestOptions().centerCrop();
+        Glide
+                .with(this)
+                .load(R.drawable.head_background)
+                .apply(options)
+                .into(leftBackground);
+        Glide
+                .with(this)
+                .load(R.drawable.head_background)
+                .apply(options)
+                .into(rightBackground);
+        //userIcon监听
+        userIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doSignInOrOut();
+            }
+        });
+        //删除切换按钮
+        View.OnClickListener onClickListener=new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showOrHideDelete();
+            }
+        };
+        removeWebsite.setOnClickListener(onClickListener);
+        removeWebsiteText.setOnClickListener(onClickListener);
+
+        //ToolBar 用于打开侧滑菜单的按钮
+        ActionBar actionBar=getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            //actionBar.setHomeAsUpIndicator(R.mipmap.ic_launcher_round);
+        }
+        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
+        //瀑布流
+        recyclerView=(RecyclerView)findViewById(R.id.recycle_view);
+        StaggeredGridLayoutManager layoutManager=new
+                StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);//列数2
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(adapter);
+        //设置loading颜色 最多4个
+        //swipeRefreshLayout.setColorSchemeColors();
+        //首次进入先显示加载中
+        swipeRefreshLayout.setRefreshing(true);
+        //手动下拉刷新
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //获取最新数据并刷新
+                if (isRefreshing==0){
+                    isRefreshing=1;
+                    isNextPage=false;
+                    browser.resetPage();
+                    sendRequestForList(websiteNow);
+                    Log.d("refresh","top is going to refresh!");
+                }
+            }
+        });
+    }
+
+    private void menuContentRefresh(){
+        //动态生成侧滑菜单(Left)
+        Menu menuLeft=navViewLeft.getMenu();
+        menuLeft.clear();
+        if (websites.length!=0){
+            for (int i=0;i<websites.length;i++){
+                if (websites[i]==null){
+                    continue;
+                }
+                menuLeft.add(R.id.group_left,i,i,websites[i].getWebSiteName());
+                menuLeft.findItem(i).setCheckable(true);
+                //动态设置侧滑菜单(left)被选中item
+                if (websiteNow!=null&&websites[i].getWebSiteName().equals(websiteNow.getWebSiteName())){
+                    navViewLeft.setCheckedItem(menuLeft.findItem(i).getItemId());
+                }
+            }
+        }
+        menuLeft.add(R.id.group_left,websites.length,websites.length, R.string.Add_Website);
+        menuLeft.findItem(websites.length).setIcon(R.drawable.ic_add_black_48dp);
+    }
+    private void showOrHideDelete(){
+        Menu menuLeft=navViewLeft.getMenu();
+        if (menuLeft.findItem(0).getIcon()!=null){
+            if (websites.length!=0){
+                for (int i=0;i<websites.length;i++){
+                    menuLeft.findItem(i).setIcon(null);
+                }
+            }
+        }else{
+            if (websites.length!=0){
+                for (int i=0;i<websites.length;i++){
+                    menuLeft.findItem(i).setIcon(R.drawable.ic_remove_black_48dp);
+                }
+            }
+        }
+    }
+    private void menuInit(){
+        menuContentRefresh();
+        navViewLeft.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getTitle().equals(getString(R.string.Add_Website))){
+                    //点击添加网页按钮
+                    Intent intent=new Intent(ListActivity.this,AddWebsite.class);
+                    startActivityForResult(intent,1);
+                }else {
+                    Menu menuLeft=navViewLeft.getMenu();
+                    if (menuLeft.findItem(0).getIcon()==null){
+                        //正常情况下点击左侧item之后的操作
+                        drawerLayout.closeDrawers();
+                        adapter.getWebContents().clear();//要重新指向一次才能检测到刷新
+                        adapter.notifyDataSetChanged();
+                        int position=0;
+                        for (int i=0;i<websites.length;i++){
+                            if (websites[i]==null){
+                                continue;
+                            }
+                            if (item.getTitle().equals(websites[i].getWebSiteName())){
+                                position=i;
+                            }
+                        }
+                        sendRequestForList(websites[position]);
+                        swipeRefreshLayout.setRefreshing(true);
+                        isRefreshing=1;
+                        isNextPage=false;
+                        Log.d("refresh","change website refresh!");
+                        collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
+                    }else {
+                        //删除状态下
+                        for (int i=0;i<websites.length;i++){
+                            if (websites[i]==null){
+                                continue;
+                            }
+                            if (item.getTitle().equals(websites[i].getWebSiteName())){
+                                //删除该Website
+                                Website[] websitesNew=new Website[websites.length-1];
+                                String[] websiteNameListNew=new String[websiteNameList.length-1];
+                                for (int j=0;j<websites.length;j++){
+                                    if (i==j){
+                                        continue;
+                                    }
+                                    websitesNew[j]=websites[j];
+                                    websiteNameListNew[j]=websiteNameList[j];
+                                }
+                                websites=websitesNew;
+                                websiteNameList=websiteNameListNew;
+                                menuContentRefresh();
+                            }
+                        }
+                    }
+
+                }
+                return true;
+            }
+        });
+        navViewRight.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                //点击右侧item之后的操作
+                adapter.getWebContents().clear();//要重新指向一次才能检测到刷新
+                adapter.notifyDataSetChanged();
+                drawerLayout.closeDrawers();
+                int positionOfCategory=0;
+                if (websiteNow.getCategory()!=null){
+                    for (int i=0;i<websiteNow.getCategory().length/2;i++){
+                        if (item.getTitle().equals(websiteNow.getCategory()[2*i])){
+                            positionOfCategory=2*i+1;
+                        }
+                    }
+                    websiteNow.setIndexUrl(websiteNow.getCategory()[positionOfCategory]);
+                    sendRequestForList(websiteNow);
+                    swipeRefreshLayout.setRefreshing(true);
+                    isRefreshing=1;
+                    isNextPage=false;
+                    Log.d("refresh","change category refresh!");
+                    collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
+                }
+                return true;
+            }
+        });
+    }
+
+    private void listContentInit(){
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                int SCROLL_STATE_IDLE=0;//表示屏幕已停止。屏幕停止滚动时为0
+                int SCROLL_STATE_TOUCH_SCROLL=1;//表示正在滚动。当屏幕滚动且用户使用的触碰或手指还在屏幕上时为1
+                int SCROLL_STATE_FLING=2;//手指做了抛的动作（手指离开屏幕前，用力滑了一下，屏幕产生惯性滑动）
+                //沉浸式
+                if(newState == SCROLL_STATE_FLING){
+                    /*//隐藏?需要
+                    systemBar.setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION//显示导航栏
+                                    //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN//显示状态栏
+                                    //| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION//不显示导航栏
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN//不显示状态栏
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE);//沉浸模式
+                    */
+                }
+                if(newState == SCROLL_STATE_IDLE){
+                    //systemBar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                }
+                //划到底部刷新
+                if(!recyclerView.canScrollVertically(1)){//检测划到了底部
+                    if (isRefreshing==0){
+                        isRefreshing=1;
+                        Log.d("refresh","bottom is going to refresh!");
+                        browser.nextPage();//发送加载下一页的请求
+                        isNextPage=true;
+                        sendRequestForList(websiteNow);
+                        snackbar = Snackbar.make(collapsingToolbarLayout, "Loading", Snackbar.LENGTH_INDEFINITE);
+                        snackbar.getView().getBackground().setAlpha(100);
+                        snackbar.show();
+                    }
+                }else if(!recyclerView.canScrollVertically(-1)) {//检测划到了顶部
+                    //systemBar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                }
+
+            }
+        });
+    }
+
     private void homepageChoose(){
         if (getIntent().hasExtra("index")){
-            //todo 有推送时
+            //todo 点击推送进入时
 
         }else {
             //无推送时默认进入上次最后打开的页面
@@ -238,225 +507,6 @@ public class ListActivity extends BaseActivity {
         }
     }
 
-    private void loginJudge(){
-        if (!username.equals("")){
-            //已登录
-            usernameShow.setText("Welcome: "+username);
-            userIcon.setImageResource(R.drawable.ic_logout);
-            editor=pref.edit();
-            editor.putString("mark",mark);
-            editor.apply();
-        }else {
-            //未登录
-            usernameShow.setText("Welcome: visitor");
-            userIcon.setImageResource(R.drawable.ic_login);
-        }
-    }
-
-
-    private void pushServiceInit(){
-        if (!PushService.isRunning()){
-            startPushService();
-        }
-    }
-
-    private void startPushService(){
-        Intent intent=new Intent(this, PushService.class);
-        intent.putExtra("username",username);
-        startService(intent);
-    }
-
-
-    private void doSignInOrOut(){
-        Intent intent=new Intent(ListActivity.this,Login.class);
-        if (hasLogin){
-            //点击ICON注销
-            editor=pref.edit();
-            editor.putBoolean("hasLogin",false);
-            editor.putString("mark","");
-            editor.apply();
-            startActivity(intent);
-            finish();
-        }else {
-            //点击ICON登录
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    private void UIInit(){
-        sendRequestForToolBar();
-        RequestOptions options = new RequestOptions().centerCrop();
-        Glide
-                .with(this)
-                .load(R.drawable.head_background)
-                .apply(options)
-                .into(leftBackground);
-        Glide
-                .with(this)
-                .load(R.drawable.head_background)
-                .apply(options)
-                .into(rightBackground);
-
-        userIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doSignInOrOut();
-            }
-        });
-        //ToolBar 用于打开侧滑菜单的按钮
-        ActionBar actionBar=getSupportActionBar();
-        if (actionBar!=null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            //actionBar.setHomeAsUpIndicator(R.mipmap.ic_launcher_round);
-        }
-        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
-        //瀑布流
-        recyclerView=(RecyclerView)findViewById(R.id.recycle_view);
-        StaggeredGridLayoutManager layoutManager=new
-                StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);//列数2
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(adapter);
-        //设置loading颜色 最多4个
-        //swipeRefreshLayout.setColorSchemeColors();
-        //首次进入先显示加载中
-        swipeRefreshLayout.setRefreshing(true);
-        //手动下拉刷新
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //获取最新数据并刷新
-                if (isRefreshing==0){
-                    isRefreshing=1;
-                    isNextPage=false;
-                    browser.resetPage();
-                    sendRequestForList(websiteNow);
-                    Log.d("refresh","top is going to refresh!");
-                }
-            }
-        });
-    }
-
-    private void menuInit(){
-        //动态生成侧滑菜单(Left)
-        Menu menuLeft=navViewLeft.getMenu();
-        menuLeft.clear();
-        if (websites.length!=0){
-            for (int i=0;i<websites.length;i++){
-                if (websites[i]==null){
-                    continue;
-                }
-                menuLeft.add(R.id.group_left,i,i,websites[i].getWebSiteName());
-            }
-        }
-        navViewLeft.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                //点击左侧item之后的操作
-                adapter.getWebContents().clear();//要重新指向一次才能检测到刷新
-                adapter.notifyDataSetChanged();
-                drawerLayout.closeDrawers();
-                int position=0;
-                for (int i=0;i<websites.length;i++){
-                    if (websites[i]==null){
-                        continue;
-                    }
-                    if (item.getTitle().equals(websites[i].getWebSiteName())){
-                        position=i;
-                    }
-                }
-                sendRequestForList(websites[position]);
-                swipeRefreshLayout.setRefreshing(true);
-                isRefreshing=1;
-                isNextPage=false;
-                Log.d("refresh","change website refresh!");
-                collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
-                return true;
-            }
-        });
-        navViewRight.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                //点击右侧item之后的操作
-                adapter.getWebContents().clear();//要重新指向一次才能检测到刷新
-                adapter.notifyDataSetChanged();
-                drawerLayout.closeDrawers();
-                int positionOfCategory=0;
-                if (websiteNow.getCategory()!=null){
-                    for (int i=0;i<websiteNow.getCategory().length/2;i++){
-                        if (item.getTitle().equals(websiteNow.getCategory()[2*i])){
-                            positionOfCategory=2*i+1;
-                        }
-                    }
-                    websiteNow.setIndexUrl(websiteNow.getCategory()[positionOfCategory]);
-                    sendRequestForList(websiteNow);
-                    swipeRefreshLayout.setRefreshing(true);
-                    isRefreshing=1;
-                    isNextPage=false;
-                    Log.d("refresh","change category refresh!");
-                    collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
-                }
-                return true;
-            }
-        });
-    }
-
-    private void addWebsite(){
-
-        View.OnClickListener onClickListener=new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(ListActivity.this,AddWebsite.class);
-                startActivityForResult(intent,1);
-            }
-        };
-        addWebsite.setOnClickListener(onClickListener);
-        addWebsiteText.setOnClickListener(onClickListener);
-    }
-
-    private void listContentInit(){
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                int SCROLL_STATE_IDLE=0;//表示屏幕已停止。屏幕停止滚动时为0
-                int SCROLL_STATE_TOUCH_SCROLL=1;//表示正在滚动。当屏幕滚动且用户使用的触碰或手指还在屏幕上时为1
-                int SCROLL_STATE_FLING=2;//手指做了抛的动作（手指离开屏幕前，用力滑了一下，屏幕产生惯性滑动）
-                //沉浸式
-                if(newState == SCROLL_STATE_FLING){
-                    /*//隐藏?需要
-                    systemBar.setSystemUiVisibility(
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                    //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION//显示导航栏
-                                    //| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN//显示状态栏
-                                    //| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION//不显示导航栏
-                                    | View.SYSTEM_UI_FLAG_FULLSCREEN//不显示状态栏
-                                    | View.SYSTEM_UI_FLAG_IMMERSIVE);//沉浸模式
-                    */
-                }
-                if(newState == SCROLL_STATE_IDLE){
-                    //systemBar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-                }
-                //划到底部刷新
-                if(!recyclerView.canScrollVertically(1)){//检测划到了底部
-                    if (isRefreshing==0){
-                        isRefreshing=1;
-                        Log.d("refresh","bottom is going to refresh!");
-                        browser.nextPage();//发送加载下一页的请求
-                        isNextPage=true;
-                        sendRequestForList(websiteNow);
-                        snackbar = Snackbar.make(collapsingToolbarLayout, "Loading", Snackbar.LENGTH_INDEFINITE);
-                        snackbar.getView().getBackground().setAlpha(100);
-                        snackbar.show();
-                    }
-                }else if(!recyclerView.canScrollVertically(-1)) {//检测划到了顶部
-                    //systemBar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-                }
-
-            }
-        });
-    }
 
     private void sendRequestForList(Website website){
         Observer<ArrayList<WebItem>> observer = new Observer<ArrayList<WebItem>>() {
@@ -552,7 +602,7 @@ public class ListActivity extends BaseActivity {
                 snackbar.show();
                 adapter.notifyItemRangeInserted(webContentList.size(),webContentList.size()+sizeThisPage);
             }
-            //动态生成侧滑菜单(Right)设置被选中item
+            //动态设置侧滑菜单(Right)被选中item
             Menu menuRight=navViewRight.getMenu();
             menuRight.clear();
             if (websiteNow.getCategory()!=null){
@@ -564,21 +614,7 @@ public class ListActivity extends BaseActivity {
                     }
                 }
             }
-            //动态生成侧滑菜单(left)设置被选中item
-            Menu menuLeft=navViewLeft.getMenu();
-            menuLeft.clear();
-            if (websites.length!=0){
-                for (int i=0;i<websites.length;i++){
-                    if (websites[i]==null){
-                        continue;
-                    }
-                    menuLeft.add(R.id.group_left,i,i,websites[i].getWebSiteName());
-                    menuLeft.findItem(i).setCheckable(true);
-                    if (websites[i].getWebSiteName().equals(websiteNow.getWebSiteName())){
-                        navViewLeft.setCheckedItem(menuLeft.findItem(i).getItemId());
-                    }
-                }
-            }
+            menuContentRefresh();
             //设置toolbar
             Menu toolbarMenu= toolbar.getMenu();
             if (isSubscribe(websiteNow.getIndexUrl())){
@@ -689,20 +725,7 @@ public class ListActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode==1&&requestCode==1){
             LogUtil.d("get result from AddWebsite");
-            Menu menuLeft=navViewLeft.getMenu();
-            menuLeft.clear();
-            if (websites.length!=0){
-                for (int i=0;i<websites.length;i++){
-                    if (websites[i]==null){
-                        continue;
-                    }
-                    menuLeft.add(R.id.group_left,i,i,websites[i].getWebSiteName());
-                    menuLeft.findItem(i).setCheckable(true);
-                    if (websites[i].getWebSiteName().equals(websiteNow.getWebSiteName())){
-                        navViewLeft.setCheckedItem(menuLeft.findItem(i).getItemId());
-                    }
-                }
-            }
+            menuContentRefresh();
         }
     }
 

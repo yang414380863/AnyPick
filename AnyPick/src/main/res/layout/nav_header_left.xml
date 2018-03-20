@@ -26,21 +26,20 @@
         android:layout_below="@id/user_icon"
         android:layout_centerHorizontal="true"
         android:text="username"/>
-
     <ImageButton
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:id="@+id/add_website"
+        android:id="@+id/remove_website"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/ic_playlist_add_white_48dp"/>
+        android:background="@drawable/ic_remove_circle_outline_white_48dp"/>
     <TextView
-        android:id="@+id/add_website_text"
+        android:id="@+id/remove_website_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:textSize="30dp"
         android:textColor="#ffffff"
-        android:text="Add website"
+        android:text="Delete"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/add_website"/>
+        android:layout_toRightOf="@id/remove_website"/>
 </RelativeLayout>
