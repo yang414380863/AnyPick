@@ -509,6 +509,9 @@ public class ListActivity extends BaseActivity {
 
 
     private void sendRequestForList(Website website){
+        //关闭侧滑菜单
+        drawerLayout.closeDrawers();
+
         Observer<ArrayList<WebItem>> observer = new Observer<ArrayList<WebItem>>() {
             private Disposable disposable;
             @Override

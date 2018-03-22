@@ -61,26 +61,6 @@ public class Login extends BaseActivity {
 
     }
 
-    private boolean isPush(){
-        //todo
-        /*if (isPushService()){
-            //通过点击推送启动
-            //发送一个点击了推送的广播,使不需要的Activity关闭
-            Intent intentBroadcast=new Intent("com.example.yang.yang.CLICK_PUSH");
-            MyApplication.getContext().sendBroadcast(intentBroadcast);
-            String index=getIntent().getExtras().getString("index");
-            Intent intent=new Intent(MainActivity.this,ListActivity.class);
-            intent.putExtra("index",index);//如果List之前未启动则通过intent获取推送index
-            //todo:将index传给ListActivity,使其访问并刷新界面
-            startActivity(intent);
-            finish();
-        }else {
-            //通过点击APP启动
-            startPushService();
-        }*/
-        return false;
-    }
-
     private void loginInit(){
         intent=new Intent(Login.this,ListActivity.class);
         if (isRemember){
@@ -90,9 +70,6 @@ public class Login extends BaseActivity {
             rememberPass.setChecked(true);
         }
         hasLogin=pref.getBoolean("hasLogin",false);
-        if (isPush()){
-            //todo如果是点击推送进来的 设置index
-        }
         if (hasLogin){//已登录 直接自动登录
             login();
         }

@@ -1,0 +1,68 @@
+{
+	"JsonIndex": 0,
+	"JsonNext": 0,
+	"category": [
+		"精选", "http://www.thepaper.cn/load_chosen.jsp?nodeids=25949&topCids=2036868,2037373,2037338,2037148,&pageidx=",
+		"时事", "http://www.thepaper.cn/load_index.jsp?nodeids=25462,25488,25489,25490,25423,25426,25424,25463,25491,25428,27604,25464,25425,25429,25481,25430,25678,25427,25422,25487,25634,25635,25600,&topCids=1994069,2037289,2036974&pageidx=",
+		"财经", "http://www.thepaper.cn/load_index.jsp?nodeids=25434,25436,25433,25438,25435,25437,27234,25485,25432,&topCids=2036993,2036794,2036612,2037087&pageidx=",
+		"思想", "http://www.thepaper.cn/load_index.jsp?nodeids=25444,27224,26525,26878,25483,25457,25574,25455,26937,25450,25482,25445,25456,25446,25536,26506,&topCids=2037053&pageidx=",
+		"问政", "http://www.thepaper.cn/load_more_gov.jsp?nodeids=&topCids=2037139,2036962,2037166,2037074,2037084&pageidx="
+	],
+	"categoryRule": {
+		"selector": ""
+	},
+	"detailItemSelector": "div[class*=news_txt] , div.contheight , div[style=text-align:center;]",
+	"indexUrl": "http://www.thepaper.cn/load_chosen.jsp?nodeids=25949&topCids=2036868,2037373,2037338,2037148,&pageidx=",
+	"itemRule": {
+		"JsonLinkRule": {
+			"jsonPath": ""
+		},
+		"JsonNextPageRule": {
+			"jsonPath": ""
+		},
+		"JsonThumbnailRule": {
+			"jsonPath": ""
+		},
+		"JsonTitleRule": {
+			"jsonPath": ""
+		},
+		"articleRule": {
+			"method": "text",
+			"selector": "*"
+		},
+		"imgRule": {
+			"attribute": "src",
+			"method": "attr",
+			"selector": "img[src]"
+		},
+		"linkRule": {
+			"attribute": "href",
+			"method": "attr",
+			"regex": "(newsDetail_forward_[0-9]+)",
+			"replace": "http://www.thepaper.cn/$1",
+			"selector": "div.news_tu > a[href]"
+		},
+		"thumbnailRule": {
+			"attribute": "src",
+			"method": "attr",
+			"regex": "//[a-z|1-2]+.thepaper.cn(/image/[0-9|/]+.jpg)",
+			"replace": "http://www.thepaper.cn$1",
+			"selector": "div.news_tu > a[href] > img[src]"
+		},
+		"titleRule": {
+			"method": "text",
+			"selector": "h2 > a[href]"
+		}
+	},
+	"itemSelector": "div.news_li",
+	"nextPageDetailRule": {
+		"selector": ""
+	},
+	"nextPageRule": {
+		"method": "html",
+		"regex": "[a-z]",
+		"replace": "!index!!page!",
+		"selector": "*"
+	},
+	"webSiteName": "澎湃新闻"
+}

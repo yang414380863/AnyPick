@@ -84,9 +84,9 @@ public class SelectorAndRegex {
     }
 
     public static String getOtherData(Document doc, Website website, String ruleString){
-        return getOtherData(doc,website,ruleString,0,0);
+        return getOtherData(doc,website,ruleString,0,0,"");
     }
-    public static String getOtherData(Document doc, Website website, String ruleString, int sizeNow, int pageNow){
+    public static String getOtherData(Document doc, Website website, String ruleString, int sizeNow, int pageNow,String index){
         //判断是哪个Rule
         Rule rule;
         switch (ruleString){
@@ -133,8 +133,9 @@ public class SelectorAndRegex {
             for (int i=1;i-1<strings.size();i++){
                 string=string.replace("$"+i,strings.get(i-1));
             }
-            string=string.replace("!size",String.valueOf(sizeNow));
-            string=string.replace("!page",String.valueOf(pageNow));
+            string=string.replace("!size!",String.valueOf(sizeNow));
+            string=string.replace("!page!",String.valueOf(pageNow));
+            string=string.replace("!index!",index);
         }
 //LogUtil.d(ruleString+" result : "+string);
         return string;

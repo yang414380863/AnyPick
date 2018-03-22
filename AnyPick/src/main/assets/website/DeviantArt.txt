@@ -62,7 +62,7 @@
         "attribute": "href",
         "method": "attr",
         "regex": "([a-zA-z]+://[^\\s]*)",
-        "replace": "$1?offset=!size",
+        "replace": "$1?offset=!size!",
         "selector": "a.selected"
     },
     "webSiteName": "DeviantArt"

@@ -3,8 +3,10 @@ package com.yang.AnyPick.web;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.orhanobut.logger.Logger;
 import com.yang.AnyPick.basic.*;
 import com.yang.AnyPick.web.html.*;
 import com.yang.AnyPick.web.json.*;
@@ -210,7 +212,7 @@ public class Browser {
             webContentList.get(i).setTitle(SelectorAndRegex.getItemData(doc,websiteNow,"Title",i));
             webContentList.get(i).setThumbnail(SelectorAndRegex.getItemData(doc,websiteNow,"Thumbnail",i));
 
-            //Logger.d(webContentList.get(i).getLink()+"\n"+webContentList.get(i).getTitle()+"\n"+webContentList.get(i).getThumbnail());
+            Logger.d(webContentList.get(i).getLink()+"\n"+webContentList.get(i).getTitle()+"\n"+webContentList.get(i).getThumbnail());
         }
         LogUtil.d("Finish load "+webContentList.size()+" item");
 
@@ -219,7 +221,7 @@ public class Browser {
         }
         //解析列表的下一页
         if (!websiteNow.getNextPageRule().getSelector().equals("")){
-            nextPageUrl=SelectorAndRegex.getOtherData(doc,websiteNow,"NextPage",webContentList.size()+1, pageNow+1);
+            nextPageUrl=SelectorAndRegex.getOtherData(doc,websiteNow,"NextPage",webContentList.size()+1, pageNow+1,websiteNow.getIndexUrl());
             //nextPageUrl=nextPageUrl.replaceAll("categorys","categories");
         }
         LogUtil.d("nextPageUrl "+nextPageUrl);
@@ -309,10 +311,13 @@ public class Browser {
         String nextPageDetail;
         Elements list = doc.select(websiteNow.getDetailItemSelector());
         for (int i = 0; i < list.size(); i++) {
+            String img=SelectorAndRegex.getDetailData(doc,websiteNow,"Img",i);
             webItem.getImg().add("");
+            webItem.getImg().set(webItem.getImg().size()-1,img);
+
+            String art=SelectorAndRegex.getDetailData(doc,websiteNow,"Article",i);
             webItem.getArticle().add("");
-            webItem.getImg().set(webItem.getImg().size()-1,SelectorAndRegex.getDetailData(doc,websiteNow,"Img",i));
-            webItem.getArticle().set(webItem.getArticle().size()-1,SelectorAndRegex.getDetailData(doc,websiteNow,"Article",i));
+            webItem.getArticle().set(webItem.getArticle().size()-1,art);
         }
         if (!websiteNow.getNextPageDetailRule().getSelector().equals("")) {
             nextPageDetail = SelectorAndRegex.getOtherData(doc,websiteNow,"NextPageDetail");
