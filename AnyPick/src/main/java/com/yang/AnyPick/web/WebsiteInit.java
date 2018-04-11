@@ -17,7 +17,7 @@ public class WebsiteInit {
     private static int length;
 
     public static String[] getWebsiteNameList(){
-        createWebsiteJson();
+        //createWebsiteJson();
         websiteNameList =FileUtil.getListFromAssets("website");
         length=websiteNameList.length;
         LogUtil.d("Find total"+ length+ "website");

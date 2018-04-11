@@ -5,8 +5,7 @@
 		"精选", "http://www.thepaper.cn/load_chosen.jsp?nodeids=25949&topCids=2036868,2037373,2037338,2037148,&pageidx=",
 		"时事", "http://www.thepaper.cn/load_index.jsp?nodeids=25462,25488,25489,25490,25423,25426,25424,25463,25491,25428,27604,25464,25425,25429,25481,25430,25678,25427,25422,25487,25634,25635,25600,&topCids=1994069,2037289,2036974&pageidx=",
 		"财经", "http://www.thepaper.cn/load_index.jsp?nodeids=25434,25436,25433,25438,25435,25437,27234,25485,25432,&topCids=2036993,2036794,2036612,2037087&pageidx=",
-		"思想", "http://www.thepaper.cn/load_index.jsp?nodeids=25444,27224,26525,26878,25483,25457,25574,25455,26937,25450,25482,25445,25456,25446,25536,26506,&topCids=2037053&pageidx=",
-		"问政", "http://www.thepaper.cn/load_more_gov.jsp?nodeids=&topCids=2037139,2036962,2037166,2037074,2037084&pageidx="
+		"思想", "http://www.thepaper.cn/load_index.jsp?nodeids=25444,27224,26525,26878,25483,25457,25574,25455,26937,25450,25482,25445,25456,25446,25536,26506,&topCids=2037053&pageidx="
 	],
 	"categoryRule": {
 		"selector": ""
