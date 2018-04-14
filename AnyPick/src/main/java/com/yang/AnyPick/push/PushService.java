@@ -38,26 +38,33 @@ public class PushService extends Service {
     private static final int TEN_MINUTE=10*60*1000;
     private static final int ONE_MINUTE=60*1000;
     private static final int TEN_SECOND=10*1000;
+    private long time;
     private static int intervalTime;
-
     SimpleDateFormat sdf;
 
-    private String username;
-
+    private static Intent intentToPushService;
+    private static AlarmManager alarmManager;
+    private static String username;
+    private static PendingIntent pendingIntent;
+    private static Context context;
     @Override
     public void onCreate() {
         super.onCreate();
         sdf= new SimpleDateFormat("yyyy//MM/dd/ HH:mm:ss");
         intervalTime=ONE_MINUTE;
         isRunning=false;
-        EventBus.getDefault().register( this );
+        alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
+        intentToPushService=new Intent(this, PushService.class);
+        EventBus.getDefault().register(this);
+        context=this;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        LogUtil.d("PushService Start");
         isRunning=true;
         if (intent==null||!intent.hasExtra("username")){
-            LogUtil.d("PushService Stop");
+            LogUtil.d("PushService No username");
             return Service.START_NOT_STICKY;
         }
         username=intent.getExtras().getString("username");
@@ -65,15 +72,16 @@ public class PushService extends Service {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    LogUtil.d("check PushService");
+                    LogUtil.d("PushService Alarm Running");
                     new Client().sendForResult("checkPush "+username,"pushService");
                 }
             }).start();
+            time= SystemClock.elapsedRealtime()+intervalTime;//从开机到现在的毫秒数+唤醒间隔
             AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
-            long time= SystemClock.elapsedRealtime()+intervalTime;//从开机到现在的毫秒数+唤醒间隔
-            Intent intentToPushService=new Intent(this, PushService.class);
+            intentToPushService=new Intent(this, PushService.class);
             intentToPushService.putExtra("username",username);
-            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,time, PendingIntent.getService(this,1,intentToPushService,0));
+            pendingIntent=PendingIntent.getService(this,1,intentToPushService,0);
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,time, pendingIntent);
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -85,6 +93,7 @@ public class PushService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        LogUtil.d("PushService onDestroy");
         isRunning=false;
         EventBus.getDefault().unregister( this );
     }
@@ -93,6 +102,14 @@ public class PushService extends Service {
         return isRunning;
     }
 
+    public static void startAlarm(){
+        //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,time, pendingIntent);
+    }
+    public static void closeAlarm(){
+        intentToPushService.putExtra("username",username);
+        pendingIntent=PendingIntent.getService(context,1,intentToPushService,0);
+        alarmManager.cancel(pendingIntent);
+    }
     @Subscribe(threadMode = ThreadMode.BACKGROUND, sticky = true)
     public void judgePush (String event){
         if (!event.split(" ")[0].equals("pushService")){

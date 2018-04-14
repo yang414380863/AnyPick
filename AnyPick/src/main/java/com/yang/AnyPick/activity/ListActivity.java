@@ -26,7 +26,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.orhanobut.logger.Logger;
@@ -107,7 +106,8 @@ public class ListActivity extends BaseActivity {
     private int isRefreshing=0;
     //定义一个变量，来标识是否退出
     private static boolean isExit = false;
-
+    //推送服务
+    Intent pushService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +133,7 @@ public class ListActivity extends BaseActivity {
         browser=Browser.getInstance();
         webContentList=new ArrayList<>();
         adapter=new ListAdapter(this);
+        pushService=new Intent(this, PushService.class);
         // 沉浸式
         //final View systemBar = findViewById(collapsing_toolbar);
         //折叠标题栏
@@ -202,14 +203,8 @@ public class ListActivity extends BaseActivity {
     }
 
     private void pushServiceInit(){
-        if (!PushService.isRunning()){
-            startPushService();
-        }
-    }
-    private void startPushService(){
-        Intent intent=new Intent(this, PushService.class);
-        intent.putExtra("username",username);
-        startService(intent);
+        pushService.putExtra("username",username);
+        startService(pushService);
     }
 
     private void doSignInOrOut(){
@@ -218,12 +213,17 @@ public class ListActivity extends BaseActivity {
             //点击ICON注销
             editor=pref.edit();
             editor.putBoolean("hasLogin",false);
+            editor.putString("username","");
+            editor.putString("password","");
             editor.putString("mark","");
             editor.apply();
+            PushService.closeAlarm();
+            stopService(pushService);
             startActivity(intent);
             finish();
         }else {
             //点击ICON登录
+            stopService(pushService);
             startActivity(intent);
             finish();
         }
@@ -336,7 +336,7 @@ public class ListActivity extends BaseActivity {
                 if (item.getTitle().equals(getString(R.string.Add_Website))){
                     //点击添加网页按钮
                     Intent intent=new Intent(ListActivity.this,AddWebsite.class);
-                    startActivityForResult(intent,1);
+                    startActivity(intent);
                 }else {
                     Menu menuLeft=navViewLeft.getMenu();
                     if (menuLeft.findItem(0).getIcon()==null){
@@ -458,60 +458,53 @@ public class ListActivity extends BaseActivity {
     }
 
     private void homepageChoose(){
-        if (getIntent().hasExtra("index")){
-            //todo 点击推送进入时
-
+        //无推送时默认进入上次最后打开的页面
+        //无推送且之前未使用过则打开默认主页
+        String indexNow=pref.getString("lastIndex","");
+        if (indexNow.equals("")){
+            websiteNow=websites[0];
+            sendRequestForList(websites[0]);//默认首页第一个
         }else {
-            //无推送时默认进入上次最后打开的页面
-            //无推送且之前未使用过则打开默认主页
-            String indexNow=pref.getString("lastIndex","");
-            if (indexNow.equals("")){
-                websiteNow=websites[0];
-                sendRequestForList(websites[0]);//默认首页第一个
-            }else {
-                boolean isFind=false;
-                for (int i=0;i<websites.length;i++){
-                    if (isFind){
-                        break;
-                    }
-                    if (websites[i]==null||websites[i].getIndexUrl()==null){
-                        continue;
-                    }
-                    if (websites[i].getCategory()==null||websites[i].getCategory().length==0){
-                        continue;
-                    }
-                    if (websites[i].getIndexUrl().equals(indexNow)){
+            boolean isFind=false;
+            for (int i=0;i<websites.length;i++){
+                if (isFind){
+                    break;
+                }
+                if (websites[i]==null||websites[i].getIndexUrl()==null){
+                    continue;
+                }
+                if (websites[i].getCategory()==null||websites[i].getCategory().length==0){
+                    continue;
+                }
+                if (websites[i].getIndexUrl().equals(indexNow)){
+                    websiteNow=websites[i];
+                    sendRequestForList(websiteNow);
+                    isFind=true;
+                    break;
+                }
+                if (isFind){
+                    break;
+                }
+                //检查category
+                for (int j=0;j<websites[i].getCategory().length;j++,j++){
+                    if (websites[i].getCategory()[j+1].equals(indexNow)){
                         websiteNow=websites[i];
+                        websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
                         sendRequestForList(websiteNow);
                         isFind=true;
                         break;
                     }
-                    if (isFind){
-                        break;
-                    }
-                    //检查category
-                    for (int j=0;j<websites[i].getCategory().length;j++,j++){
-                        if (websites[i].getCategory()[j+1].equals(indexNow)){
-                            websiteNow=websites[i];
-                            websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
-                            sendRequestForList(websiteNow);
-                            isFind=true;
-                            break;
-                        }
-                    }
-                    if (isFind){
-                        break;
-                    }
+                }
+                if (isFind){
+                    break;
                 }
             }
         }
     }
 
-
     private void sendRequestForList(Website website){
         //关闭侧滑菜单
         drawerLayout.closeDrawers();
-
         Observer<ArrayList<WebItem>> observer = new Observer<ArrayList<WebItem>>() {
             private Disposable disposable;
             @Override
@@ -723,15 +716,6 @@ public class ListActivity extends BaseActivity {
         return hasMark;
     }
 
-    //todo: 把新增的网站保存下来 让AddWebsite返回JSON
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode==1&&requestCode==1){
-            LogUtil.d("get result from AddWebsite");
-            menuContentRefresh();
-        }
-    }
-
     //双击返回退出
     private Handler mHandler= new Handler() {
         @Override
@@ -764,40 +748,43 @@ public class ListActivity extends BaseActivity {
     //点击通知之后的操作
     @Subscribe(threadMode = ThreadMode.MAIN , sticky = true)
     public void getPush(String event){
-        if (!event.split(" ")[0].equals("getPush")){
-            return;
-        }
-        LogUtil.d("Get Push");
-        String index=event.split(" ")[1];
-        ActivityCollector.finishExcept(ListActivity.this);
-        LogUtil.d("Push Index: "+index);
-        boolean isFind=false;
-        for (int i=0;i<websites.length;i++){
-            if (websites[i].getCategory()==null){
-                if (websites[i].getIndexUrl().equals(index)){
-                    websiteNow=websites[i];
-                    sendRequestForList(websiteNow);
-                    swipeRefreshLayout.setRefreshing(true);
-                    break;
-                }else {
-                    //无Category/Index的跳过
-                    continue;
-                }
-            }else {
-                for (int j=0;j<websites[i].getCategory().length;j++,j++){
-                    if (websites[i].getCategory()[j+1].equals(index)){
+        if (event.split(" ")[0].equals("getPush")){
+            LogUtil.d("Get Push");
+            String index=event.split(" ")[1];
+            ActivityCollector.finishExcept(ListActivity.this);
+            LogUtil.d("Push Index: "+index);
+            boolean isFind=false;
+            for (int i=0;i<websites.length;i++){
+                if (websites[i].getCategory()==null){
+                    if (websites[i].getIndexUrl().equals(index)){
                         websiteNow=websites[i];
-                        websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
                         sendRequestForList(websiteNow);
                         swipeRefreshLayout.setRefreshing(true);
-                        isFind=true;
+                        break;
+                    }else {
+                        //无Category/Index的跳过
+                        continue;
+                    }
+                }else {
+                    for (int j=0;j<websites[i].getCategory().length;j++,j++){
+                        if (websites[i].getCategory()[j+1].equals(index)){
+                            websiteNow=websites[i];
+                            websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
+                            sendRequestForList(websiteNow);
+                            swipeRefreshLayout.setRefreshing(true);
+                            isFind=true;
+                            break;
+                        }
+                    }
+                    if (isFind){
                         break;
                     }
                 }
-                if (isFind){
-                    break;
-                }
             }
+        }else if (event.split(" ")[0].equals("newWebsite")){
+            LogUtil.d("get result from AddWebsite");
+            menuContentRefresh();
         }
+
     }
 }
