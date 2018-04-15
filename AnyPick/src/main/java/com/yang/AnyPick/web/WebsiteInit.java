@@ -6,6 +6,8 @@ import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.web.html.ItemRule;
 import com.yang.AnyPick.web.html.Rule;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by YanGGGGG on 2017/6/6.
@@ -14,6 +16,7 @@ import com.yang.AnyPick.web.html.Rule;
 public class WebsiteInit {
     private static Website[] websiteList;
     private static String[] websiteNameList;
+    private static ArrayList<Website> websiteArrayList;
     private static int length;
 
     public static String[] getWebsiteNameList(){
@@ -33,6 +36,17 @@ public class WebsiteInit {
         }
         return websiteList;
     }
+
+    public static ArrayList<Website> getWebsiteArrayList(){
+        getWebsiteNameList();
+        websiteArrayList =new ArrayList<>();
+        for (int i = 0; i< length; i++){
+            LogUtil.d("Find "+ websiteNameList[i]);
+            websiteArrayList.add(JsonUtils.JsonToWebsite(FileUtil.readFileFromAssets("website/"+ websiteNameList[i])));
+        }
+        return websiteArrayList;
+    }
+
     private static void createWebsiteJson(){
         ItemRule rule =new ItemRule();
         Website website=new Website("澎湃新闻","http://www.thepaper.cn/",rule);

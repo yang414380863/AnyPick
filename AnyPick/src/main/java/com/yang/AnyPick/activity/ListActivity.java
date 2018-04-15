@@ -335,7 +335,7 @@ public class ListActivity extends BaseActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getTitle().equals(getString(R.string.Add_Website))){
                     //点击添加网页按钮
-                    Intent intent=new Intent(ListActivity.this,AddWebsite.class);
+                    Intent intent=new Intent(ListActivity.this,WebsiteMarket.class);
                     startActivity(intent);
                 }else {
                     Menu menuLeft=navViewLeft.getMenu();
