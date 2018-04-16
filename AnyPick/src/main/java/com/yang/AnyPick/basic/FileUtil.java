@@ -58,7 +58,7 @@ public class FileUtil {
             return null;
         }
     }
-    public static String writeFileToData(String username,String fileName,String content) {
+    public static void writeFileToData(String username,String fileName,String content) {
         if (username.equals("")){
             username="visitor";
         }
@@ -82,7 +82,6 @@ public class FileUtil {
                 e.printStackTrace();
             }
         }
-        return "success";
     }
     public static String readFileFromData(String username,String fileName){
         if (username.equals("")){
@@ -120,14 +119,21 @@ public class FileUtil {
         String dirPath=path+"/"+dirName;
         String[] files =new File(dirPath).list();
         if (files==null){
-            return null;
+            return new String[0];
         }
         for(String file:files){
             LogUtil.d("file name: "+file);
         }
         return files;
     }
-
+    public static void deleteFromData(String username,String fileName){
+        if (username.equals("")){
+            username="visitor";
+        }
+        String dirPath=path+"/"+username+"/"+fileName;
+        File file=new File(dirPath);
+        file.delete();
+    }
     private static File mkFile(String filePath,String fileName){
         File file = null;
         mkdir(filePath);
@@ -135,9 +141,9 @@ public class FileUtil {
             file = new File(filePath+"/"+fileName);
             if (!file.exists()){
                 file.createNewFile();
-                LogUtil.d("filePath：" + filePath +"fileName:"+fileName);
+                //LogUtil.d("filePath：" + filePath +"  fileName:"+fileName);
             }else {
-                LogUtil.d("file: " + fileName+" existed");
+                //LogUtil.d("file: " + fileName+" existed");
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -150,9 +156,9 @@ public class FileUtil {
             file = new File(dirName);
             if (!file.exists()){//判断指定的路径或者指定的目录文件是否已经存在。
                 file.mkdir();//建立文件夹
-                LogUtil.d("new dir: " + dirName);
+                //LogUtil.d("new dir: " + dirName);
             }else {
-                LogUtil.d("dir: " + dirName+" existed");
+                //LogUtil.d("dir: " + dirName+" existed");
             }
         }catch (Exception e){
             e.printStackTrace();

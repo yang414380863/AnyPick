@@ -158,9 +158,8 @@ public class ListActivity extends BaseActivity {
     }
 
     private void initWebsiteList(){
-        String temp=pref.getString("websiteNameList","");
-        if (temp.equals("")||!hasLogin){
-            //List为空 或者游客身份
+        if (!hasLogin){
+            //游客身份 不从服务器获取
             websiteNameList=WebsiteInit.getWebsiteNameList();
             websites=WebsiteInit.getWebsiteList();
             StringBuilder s=new StringBuilder(websiteNameList[0]);
@@ -168,13 +167,13 @@ public class ListActivity extends BaseActivity {
                 s=s.append(",").append(websiteNameList[i]);
             }
             editor=pref.edit();
-            editor.putString("websiteNameList", s.toString());
             for (int i=0;i<websites.length;i++){
                 editor.putString(websites[i].getWebSiteName(), JsonUtils.ObjectToJson(websites[i]));
                 LogUtil.d(pref.getString(websites[i].getWebSiteName(),""));
             }
             editor.apply();
         }else {
+            //用户身份 从服务器获取List
             //从服务器下载WebsiteList todo:服务器user加一列WebsiteList
             //读"websiteNameList"个数->创建数组->String->Object
             String[] websiteNameNew=pref.getString("websiteNameList","").split(",");
@@ -294,6 +293,8 @@ public class ListActivity extends BaseActivity {
 
     private void menuContentRefresh(){
         //动态生成侧滑菜单(Left)
+        websiteNameList=WebsiteInit.getWebsiteNameList();
+        websites=WebsiteInit.getWebsiteList();
         Menu menuLeft=navViewLeft.getMenu();
         menuLeft.clear();
         if (websites.length!=0){
@@ -360,27 +361,9 @@ public class ListActivity extends BaseActivity {
                         Log.d("refresh","change website refresh!");
                         collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
                     }else {
-                        //删除状态下
-                        for (int i=0;i<websites.length;i++){
-                            if (websites[i]==null){
-                                continue;
-                            }
-                            if (item.getTitle().equals(websites[i].getWebSiteName())){
-                                //删除该Website
-                                Website[] websitesNew=new Website[websites.length-1];
-                                String[] websiteNameListNew=new String[websiteNameList.length-1];
-                                for (int j=0;j<websites.length;j++){
-                                    if (i==j){
-                                        continue;
-                                    }
-                                    websitesNew[j]=websites[j];
-                                    websiteNameListNew[j]=websiteNameList[j];
-                                }
-                                websites=websitesNew;
-                                websiteNameList=websiteNameListNew;
-                                menuContentRefresh();
-                            }
-                        }
+                        //删除状态下点击
+                        FileUtil.deleteFromData(username,item.getTitle().toString());
+                        menuContentRefresh();
                     }
 
                 }
@@ -459,7 +442,7 @@ public class ListActivity extends BaseActivity {
 
     private void homepageChoose(){
         //无推送时默认进入上次最后打开的页面
-        //无推送且之前未使用过则打开默认主页
+        //之前未使用过则打开默认主页
         String indexNow=pref.getString("lastIndex","");
         if (indexNow.equals("")){
             websiteNow=websites[0];
@@ -479,7 +462,6 @@ public class ListActivity extends BaseActivity {
                 if (websites[i].getIndexUrl().equals(indexNow)){
                     websiteNow=websites[i];
                     sendRequestForList(websiteNow);
-                    isFind=true;
                     break;
                 }
                 if (isFind){
@@ -625,6 +607,7 @@ public class ListActivity extends BaseActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
     //右上ToolBar
     public boolean onCreateOptionsMenu(Menu menu){
@@ -655,7 +638,7 @@ public class ListActivity extends BaseActivity {
 
     public void subscribe(String websiteIndex){
         int hasMark=0;
-        String[] oldMarks=pref.getString("mark","").split(",");
+        String[] oldMarks=pref.getString("mark","").split("!@#");
         ArrayList<String> newMarks=new ArrayList<>();
         for (int i=0;i<oldMarks.length;i++){
             if(oldMarks[0].equals("")){
@@ -680,7 +663,7 @@ public class ListActivity extends BaseActivity {
             newMark=new StringBuilder(newStrings[0]);
         }
         for (int i=1;i<newStrings.length;i++){
-            newMark=newMark.append(",").append(newStrings[i]);
+            newMark=newMark.append("!@#").append(newStrings[i]);
         }
         LogUtil.d("Marks.size(): "+newMarks.size());
         editor=pref.edit();
@@ -706,7 +689,7 @@ public class ListActivity extends BaseActivity {
 
     public boolean isSubscribe(String websiteIndex){
         boolean hasMark=false;
-        String[] strings=mark.split(",");
+        String[] strings=mark.split("!@#");
         for (int i=0;i<strings.length;i++){
             if (strings[i].equals(websiteIndex)){
                 //如果已经mark订阅过了 则将其从订阅中删除
@@ -745,46 +728,55 @@ public class ListActivity extends BaseActivity {
         }
     }
 
-    //点击通知之后的操作
     @Subscribe(threadMode = ThreadMode.MAIN , sticky = true)
-    public void getPush(String event){
-        if (event.split(" ")[0].equals("getPush")){
-            LogUtil.d("Get Push");
-            String index=event.split(" ")[1];
-            ActivityCollector.finishExcept(ListActivity.this);
-            LogUtil.d("Push Index: "+index);
-            boolean isFind=false;
-            for (int i=0;i<websites.length;i++){
-                if (websites[i].getCategory()==null){
-                    if (websites[i].getIndexUrl().equals(index)){
-                        websiteNow=websites[i];
-                        sendRequestForList(websiteNow);
-                        swipeRefreshLayout.setRefreshing(true);
-                        break;
-                    }else {
-                        //无Category/Index的跳过
-                        continue;
-                    }
-                }else {
-                    for (int j=0;j<websites[i].getCategory().length;j++,j++){
-                        if (websites[i].getCategory()[j+1].equals(index)){
+    public void getFromEventBus(String event){
+        switch (event.split(" ")[0]){
+            case "getPush": {
+                //点击通知之后的操作
+                LogUtil.d("Get Push");
+                String index=event.split(" ")[1];
+                ActivityCollector.finishExcept(ListActivity.this);
+                LogUtil.d("Push Index: "+index);
+                boolean isFind=false;
+                for (int i=0;i<websites.length;i++){
+                    if (websites[i].getCategory()==null){
+                        if (websites[i].getIndexUrl().equals(index)){
                             websiteNow=websites[i];
-                            websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
                             sendRequestForList(websiteNow);
                             swipeRefreshLayout.setRefreshing(true);
-                            isFind=true;
+                            break;
+                        }else {
+                            //无Category/Index的跳过
+                            continue;
+                        }
+                    }else {
+                        for (int j=0;j<websites[i].getCategory().length;j++,j++){
+                            if (websites[i].getCategory()[j+1].equals(index)){
+                                websiteNow=websites[i];
+                                websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
+                                sendRequestForList(websiteNow);
+                                swipeRefreshLayout.setRefreshing(true);
+                                isFind=true;
+                                break;
+                            }
+                        }
+                        if (isFind){
                             break;
                         }
                     }
-                    if (isFind){
-                        break;
-                    }
                 }
+                break;
             }
-        }else if (event.split(" ")[0].equals("newWebsite")){
+            case "refreshMenu":{
+            //添加了新Website后操作
             LogUtil.d("get result from AddWebsite");
             menuContentRefresh();
+            break;
+            }
+            case "updateLocal":{
+                Toast.makeText(this,"Success download",Toast.LENGTH_SHORT);
+            }
+            default:{}
         }
-
     }
 }

@@ -134,8 +134,8 @@ public class Login extends BaseActivity {
         if (ss.length==2){
             mark=ss[1];
         }
-        final String username=accountEdit.getText().toString();
-        final String password=passwordEdit.getText().toString();
+        String username=accountEdit.getText().toString();
+        String password=passwordEdit.getText().toString();
         if (state.equals("failed")){
             //登录失败,尝试注册新账号
             register();
@@ -178,6 +178,8 @@ public class Login extends BaseActivity {
     }
     //注册结果处理
     private void registerRes(String s){
+        String username=accountEdit.getText().toString();
+        String password=passwordEdit.getText().toString();
         String res=s.split(" ")[0];
         if (res.equals("existed")){
             Toast.makeText(Login.this,"password is incorrect",Toast.LENGTH_SHORT).show();

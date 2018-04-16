@@ -1,8 +1,11 @@
 package com.yang.AnyPick.web;
 
+import android.preference.PreferenceManager;
+
 import com.yang.AnyPick.basic.FileUtil;
 import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.basic.LogUtil;
+import com.yang.AnyPick.basic.MyApplication;
 import com.yang.AnyPick.web.html.ItemRule;
 import com.yang.AnyPick.web.html.Rule;
 
@@ -19,20 +22,35 @@ public class WebsiteInit {
     private static ArrayList<Website> websiteArrayList;
     private static int length;
 
-    public static String[] getWebsiteNameList(){
-        //createWebsiteJson();
-        websiteNameList =FileUtil.getListFromAssets("website");
+    public static String[] getWebsiteNameList(){//没有Download Website时从Assets读取
+        String username= PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()).getString("username","");
+        String[] downloadWebsites=FileUtil.showFileFromData(username);
+        if (downloadWebsites==null||downloadWebsites.length==0){
+            websiteNameList =FileUtil.getListFromAssets("website");
+            LogUtil.d("Find "+ length+ "websites in Assets");
+        }else {
+            websiteNameList=downloadWebsites;
+            LogUtil.d("Find "+ length+ "websites in Data");
+        }
         length=websiteNameList.length;
-        LogUtil.d("Find total"+ length+ "website");
         return websiteNameList;
     }
 
-    public static Website[] getWebsiteList(){
+    public static Website[] getWebsiteList(){//没有Download Website时从Assets读取
         getWebsiteNameList();
+        String username= PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()).getString("username","");
+        String[] downloadWebsites=FileUtil.showFileFromData(username);
         websiteList =new Website[length];
-        for (int i = 0; i< length; i++){
-            LogUtil.d("Find "+ websiteNameList[i]);
-            websiteList[i]= JsonUtils.JsonToWebsite(FileUtil.readFileFromAssets("website/"+ websiteNameList[i]));
+        if (downloadWebsites==null||downloadWebsites.length==0){
+            for (int i = 0; i< length; i++){
+                websiteList[i]= JsonUtils.JsonToWebsite(FileUtil.readFileFromAssets("website/"+ websiteNameList[i]));
+                LogUtil.d("Find "+ websiteNameList[i]+" in Assets");
+            }
+        }else {
+            for (int i = 0; i< length; i++){
+                websiteList[i]= JsonUtils.JsonToWebsite(FileUtil.readFileFromData(username,websiteNameList[i]));
+                LogUtil.d("Find "+ websiteNameList[i]+" in Data");
+            }
         }
         return websiteList;
     }

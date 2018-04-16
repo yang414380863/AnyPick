@@ -33,7 +33,6 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 public class PushService extends Service {
 
-    private static boolean isRunning;
     //唤醒间隔
     private static final int TEN_MINUTE=10*60*1000;
     private static final int ONE_MINUTE=60*1000;
@@ -52,7 +51,6 @@ public class PushService extends Service {
         super.onCreate();
         sdf= new SimpleDateFormat("yyyy//MM/dd/ HH:mm:ss");
         intervalTime=ONE_MINUTE;
-        isRunning=false;
         alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
         intentToPushService=new Intent(this, PushService.class);
         EventBus.getDefault().register(this);
@@ -62,7 +60,6 @@ public class PushService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtil.d("PushService Start");
-        isRunning=true;
         if (intent==null||!intent.hasExtra("username")){
             LogUtil.d("PushService No username");
             return Service.START_NOT_STICKY;
@@ -94,17 +91,9 @@ public class PushService extends Service {
     public void onDestroy() {
         super.onDestroy();
         LogUtil.d("PushService onDestroy");
-        isRunning=false;
         EventBus.getDefault().unregister( this );
     }
 
-    public static boolean isRunning(){
-        return isRunning;
-    }
-
-    public static void startAlarm(){
-        //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,time, pendingIntent);
-    }
     public static void closeAlarm(){
         intentToPushService.putExtra("username",username);
         pendingIntent=PendingIntent.getService(context,1,intentToPushService,0);
@@ -112,25 +101,23 @@ public class PushService extends Service {
     }
     @Subscribe(threadMode = ThreadMode.BACKGROUND, sticky = true)
     public void judgePush (String event){
-        if (!event.split(" ")[0].equals("pushService")){
-            return;
-        }
-        event=event.split(" ")[1];
-        Logger.d("get push event: "+event);
-        if (event!=null&&event!=""){
-            SharedPreferences pref;
-            pref= PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-            String[] res=event.split(";");
-            for (int i=0;i<res.length;i++){
-                String[] s=res[i].split(",");
-                Long getDate=Long.valueOf(s[2]);
-                Long latestDate=Long.valueOf(pref.getString(s[0],"0"));
-                //LogUtil.d("getDate "+sdf.format(getDate));
-                //LogUtil.d("latestDate "+sdf.format(latestDate));
-                //对比时间
-                if (getDate>latestDate){
-                    LogUtil.d("New Push");
-                    showNotification(s[0],s[1],getDate);
+        if (event.split(" ")[0].equals("pushService")){
+            if (event!=null&&event!=""){
+                event=event.split(" ")[1];
+                Logger.d("get push event: "+event);
+                SharedPreferences pref =PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+                String[] res=event.split("!@#!@#");
+                for (int i=0;i<res.length;i++){
+                    String[] s=res[i].split("!@#");
+                    Long getDate=Long.valueOf(s[2]);
+                    Long latestDate=Long.valueOf(pref.getString(s[0],"0"));
+                    //LogUtil.d("getDate "+sdf.format(getDate));
+                    //LogUtil.d("latestDate "+sdf.format(latestDate));
+                    //对比时间
+                    if (getDate>latestDate){
+                        LogUtil.d("New Push");
+                        showNotification(s[0],s[1],getDate);
+                    }
                 }
             }
         }

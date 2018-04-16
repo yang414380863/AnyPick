@@ -15,6 +15,8 @@ import com.yang.AnyPick.basic.FileUtil;
 import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.basic.LogUtil;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
@@ -65,6 +67,7 @@ public class MarketAdapter extends RecyclerView.Adapter<MarketAdapter.ViewHolder
         int position=(int)view.getTag();
         final String name=marketNameList.get(position);
         final String username=PreferenceManager.getDefaultSharedPreferences(context).getString("username","");
+        final String password=PreferenceManager.getDefaultSharedPreferences(context).getString("password","");
         Observable.create(new ObservableOnSubscribe<String>() {
             @Override
             public void subscribe(ObservableEmitter<String> emitter) throws Exception {
@@ -78,6 +81,8 @@ public class MarketAdapter extends RecyclerView.Adapter<MarketAdapter.ViewHolder
                     public void accept(String s) throws Exception {
                         LogUtil.d("onNextGet: " + s);
                         FileUtil.writeFileToData(username,name,s);
+                        EventBus.getDefault().post("refreshMenu ");
+                        new Client().sendForResult("updateLocal "+username+" "+password+" "+name,"updateLocal");
                     }
                 });
 

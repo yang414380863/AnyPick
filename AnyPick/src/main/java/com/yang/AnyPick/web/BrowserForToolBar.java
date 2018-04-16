@@ -1,6 +1,5 @@
 package com.yang.AnyPick.web;
 
-import android.content.Intent;
 import android.widget.Toast;
 
 import com.yang.AnyPick.basic.LogUtil;
@@ -13,7 +12,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -59,7 +57,7 @@ public class BrowserForToolBar {
     void setNewObservable(){
         observable =Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<String> emitter) {
                 BrowserForToolBar.getInstance().setEmitter(emitter);
             }
         });
@@ -93,10 +91,11 @@ public class BrowserForToolBar {
                             LogUtil.d("onFailure");
                             Toast.makeText(MyApplication.getContext(),"Network connection failure",Toast.LENGTH_SHORT).show();
                             emitter.onError(e);
+                            call.cancel();
                         }
 
                         @Override
-                        public void onResponse(Call call, Response response) throws IOException {
+                        public void onResponse(Call call, Response response){
                             try{
                                 //解析HTML
                                 Document doc= Jsoup.parse(response.body().string());
@@ -107,6 +106,7 @@ public class BrowserForToolBar {
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
+                            call.cancel();
                         }
                     });
                 }catch (Exception e){

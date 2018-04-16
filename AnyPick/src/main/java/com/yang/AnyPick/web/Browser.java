@@ -212,9 +212,9 @@ public class Browser {
             webContentList.get(i).setTitle(SelectorAndRegex.getItemData(doc,websiteNow,"Title",i));
             webContentList.get(i).setThumbnail(SelectorAndRegex.getItemData(doc,websiteNow,"Thumbnail",i));
 
-            Logger.d(webContentList.get(i).getLink()+"\n"+webContentList.get(i).getTitle()+"\n"+webContentList.get(i).getThumbnail());
+            //Logger.d(webContentList.get(i).getLink()+"\n"+webContentList.get(i).getTitle()+"\n"+webContentList.get(i).getThumbnail());
         }
-        LogUtil.d("Finish load "+webContentList.size()+" item");
+        //LogUtil.d("Finish load "+webContentList.size()+" item");
 
         if (!websiteNow.getCategoryRule().getSelector().equals("")){
             categoryNow=SelectorAndRegex.getOtherData(doc,websiteNow,"Category");
@@ -224,7 +224,7 @@ public class Browser {
             nextPageUrl=SelectorAndRegex.getOtherData(doc,websiteNow,"NextPage",webContentList.size()+1, pageNow+1,websiteNow.getIndexUrl());
             //nextPageUrl=nextPageUrl.replaceAll("categorys","categories");
         }
-        LogUtil.d("nextPageUrl "+nextPageUrl);
+        //LogUtil.d("nextPageUrl "+nextPageUrl);
         listEmitter.onNext(webContentList);
         listEmitter.onComplete();
     }
@@ -249,10 +249,10 @@ public class Browser {
             webContentList.get(i).setTitle(titles.get(i).toString());
             webContentList.get(i).setThumbnail(thumbnails.get(i).toString());
         }
-        LogUtil.d("Finish load "+webContentList.size()+" item");
+        //LogUtil.d("Finish load "+webContentList.size()+" item");
 
         //解析列表的下一页
-        LogUtil.d("nextPageUrl "+nextPageUrl);
+        //LogUtil.d("nextPageUrl "+nextPageUrl);
         listEmitter.onNext(webContentList);
         listEmitter.onComplete();
     }
