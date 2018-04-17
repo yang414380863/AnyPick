@@ -19,7 +19,7 @@
             android:layout_weight="9"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
-            android:textSize="25sp"/>
+            android:textSize="20sp"/>
 
         <ImageView
             android:id="@+id/image"

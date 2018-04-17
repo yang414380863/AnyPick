@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -45,11 +44,10 @@ public class DetailActivity extends BaseActivity {
     static int isRefreshing=0;
     //瀑布流
     final DetailAdapter adapter=new DetailAdapter(this);
-    static int positionNow;
     //标题栏
     ImageView imageView;
     CollapsingToolbarLayout collapsingToolbarLayout;
-    //toolbar
+    //toolbar_list
     Toolbar toolbar;
     //当前详情页
     WebItem webItemNow;
@@ -80,7 +78,7 @@ public class DetailActivity extends BaseActivity {
         collapsingToolbarLayout=(CollapsingToolbarLayout)findViewById(collapsing_toolbar);
         collapsingToolbarLayout.setTitle("Loading...");
         //ToolBar
-        toolbar=(Toolbar)findViewById(R.id.toolbar2);
+        toolbar=(Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //瀑布流
         RecyclerView recyclerView=(RecyclerView)findViewById(R.id.recycle_view);
@@ -184,7 +182,7 @@ public class DetailActivity extends BaseActivity {
     }
     //ToolBar
     public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.toolbar2,menu);
+        getMenuInflater().inflate(R.menu.toolbar_detail,menu);
         return true;
     }
 

@@ -72,7 +72,7 @@ public class ListActivity extends BaseActivity {
     //标题栏
     private ImageView imageView;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    //toolbar
+    //toolbar_list
     private Toolbar toolbar;
     //获取用户
     private SharedPreferences pref;
@@ -330,7 +330,7 @@ public class ListActivity extends BaseActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.getTitle().equals(getString(R.string.Add_Website))){
                     //点击添加网页按钮
-                    Intent intent=new Intent(ListActivity.this,WebsiteMarket.class);
+                    Intent intent=new Intent(ListActivity.this,MarketActivity.class);
                     startActivity(intent);
                 }else {
                     Menu menuLeft=navViewLeft.getMenu();
@@ -624,7 +624,7 @@ public class ListActivity extends BaseActivity {
     }
     //右上ToolBar
     public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.toolbar,menu);
+        getMenuInflater().inflate(R.menu.toolbar_list,menu);
         return true;
     }
     @Override

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,10 +25,12 @@ import com.yang.AnyPick.web.html.ItemRule;
 import com.yang.AnyPick.web.html.Rule;
 import com.yang.AnyPick.web.json.JsonRule;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Arrays;
 
 
-public class AddWebsite extends BaseActivity {
+public class AddWebsiteByRule extends BaseActivity {
 
     Website websiteNew;
 
@@ -38,14 +39,14 @@ public class AddWebsite extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_website);
-        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar3);
+        setContentView(R.layout.add_website_by_rule);
+        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Add Website");
         setSupportActionBar(toolbar);
 
         final LinearLayout categoryLayout=(LinearLayout)findViewById(R.id.category_parent);
         final LinearLayout itemRuleLayout=(LinearLayout)findViewById(R.id.item_rule_parent);
-        final LayoutInflater inflater = LayoutInflater.from(AddWebsite.this);
+        final LayoutInflater inflater = LayoutInflater.from(AddWebsiteByRule.this);
 
         final EditText websiteIndex=(EditText)findViewById(R.id.website_index);
         final EditText websiteName=(EditText)findViewById(R.id.website_name);
@@ -143,7 +144,7 @@ public class AddWebsite extends BaseActivity {
                 }
                 websitesStringNew[ListActivity.websiteNameList.length]=websiteNew.getWebSiteName();
                 //websitesStringNew个数=旧的+1->替换websitesString->存到"websitesString"
-                pref= PreferenceManager.getDefaultSharedPreferences(AddWebsite.this);
+                pref= PreferenceManager.getDefaultSharedPreferences(AddWebsiteByRule.this);
                 editor=pref.edit();
                 String s=websitesStringNew[0];
                 for (int i=1;i<websitesStringNew.length;i++){
@@ -158,18 +159,19 @@ public class AddWebsite extends BaseActivity {
 
 
                 String[] websitesStringNew2=pref.getString("websitesString","").split(",");
-                Website[] websitesNew2=new Website[websitesStringNew2.length];
+                Website[] websitesNew=new Website[websitesStringNew2.length];
                 for (int i=0;i<websitesStringNew2.length;i++){
                     String websiteInJson=pref.getString(websitesStringNew2[i],"");
-                    websitesNew2[i]=JsonUtils.JsonToWebsite(websiteInJson);
+                    websitesNew[i]=JsonUtils.JsonToWebsite(websiteInJson);
                 }
-                ListActivity.websites=websitesNew2;
+                ListActivity.websites=websitesNew;
                 ListActivity.websiteNameList=websitesStringNew2;
                 for (int i=0;i<websitesStringNew2.length;i++){
                     LogUtil.d(pref.getString(websitesStringNew2[i],""));
                 }
                 Intent intent=new Intent();
                 setResult(1,intent);
+                EventBus.getDefault().post("refreshMenu ");
                 finish();
             }
         });
@@ -244,33 +246,5 @@ public class AddWebsite extends BaseActivity {
                 break;
         }
         return rule;
-    }
-
-    //ToolBar
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.toolbar3,menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.add_json:{
-                Intent intent=new Intent(AddWebsite.this,AddWebsiteWithJson.class);
-                startActivityForResult(intent,1);
-                break;
-            }
-            default:break;
-        }
-        return true;
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode==1&&requestCode==1){
-            LogUtil.d("get result from AddWebsiteWithJson");
-            Intent intent=new Intent();
-            setResult(1,intent);
-            finish();
-        }
     }
 }

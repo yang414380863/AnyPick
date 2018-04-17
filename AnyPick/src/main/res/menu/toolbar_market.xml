@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <item
+        android:id="@+id/add_rule"
+        android:title="Add website by rule"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/add_json"
-        android:title="Use Json"
-        app:showAsAction="always"/>
+        android:title="Add website with Json"
+        app:showAsAction="never"/>
 </menu>

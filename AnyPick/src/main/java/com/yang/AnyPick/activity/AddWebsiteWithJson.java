@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +17,8 @@ import com.yang.AnyPick.basic.LogUtil;
 import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.web.Website;
 
+import org.greenrobot.eventbus.EventBus;
+
 public class AddWebsiteWithJson extends BaseActivity {
 
     private SharedPreferences pref;
@@ -27,7 +28,7 @@ public class AddWebsiteWithJson extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_website_with_json);
 
-        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar4);
+        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Add Website With Json");
         setSupportActionBar(toolbar);
 
@@ -76,25 +77,9 @@ public class AddWebsiteWithJson extends BaseActivity {
                 }
                 Intent intent=new Intent();
                 setResult(1,intent);
+                EventBus.getDefault().post("refreshMenu ");
                 finish();
             }
         });
-    }
-    //ToolBar
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.toolbar4,menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.add:{
-                finish();
-                break;
-            }
-            default:break;
-        }
-        return true;
     }
 }
