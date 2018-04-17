@@ -1,9 +1,7 @@
 package com.yang.AnyPick.basic;
 
 
-import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,9 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by YanGGGGG on 2017/12/7.

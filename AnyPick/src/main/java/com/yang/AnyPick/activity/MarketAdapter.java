@@ -1,6 +1,7 @@
 package com.yang.AnyPick.activity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.FileUtil;
-import com.yang.AnyPick.basic.JsonUtils;
 import com.yang.AnyPick.basic.LogUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -48,7 +48,7 @@ public class MarketAdapter extends RecyclerView.Adapter<MarketAdapter.ViewHolder
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //生成一个item
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.web_content_item, parent, false);
+                .inflate(R.layout.market_item, parent, false);
         final ViewHolder holder = new ViewHolder(view);
         view.setOnClickListener(this);
         return holder;
@@ -63,11 +63,13 @@ public class MarketAdapter extends RecyclerView.Adapter<MarketAdapter.ViewHolder
 
     @Override
     public void onClick(View view){
-        //点击->获取链接->显示图片/目录
         int position=(int)view.getTag();
         final String name=marketNameList.get(position);
-        final String username=PreferenceManager.getDefaultSharedPreferences(context).getString("username","");
-        final String password=PreferenceManager.getDefaultSharedPreferences(context).getString("password","");
+        final SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(context);
+        final String username=pref.getString("username","");
+        final String password=pref.getString("password","");
+        final String local=pref.getString("local","");
+
         Observable.create(new ObservableOnSubscribe<String>() {
             @Override
             public void subscribe(ObservableEmitter<String> emitter) throws Exception {
@@ -82,7 +84,17 @@ public class MarketAdapter extends RecyclerView.Adapter<MarketAdapter.ViewHolder
                         LogUtil.d("onNextGet: " + s);
                         FileUtil.writeFileToData(username,name,s);
                         EventBus.getDefault().post("refreshMenu ");
-                        new Client().sendForResult("updateLocal "+username+" "+password+" "+name,"updateLocal");
+                        if (!username.equals("")){
+                            String res;
+                            if (local==null||local.equals("")){
+                                res=name;
+                                new Client().sendForResult("updateLocal "+username+" "+password+" "+res,"updateLocal");
+                            }else {
+                                res=local+"!@#"+name;
+                                new Client().sendForResult("updateLocal "+username+" "+password+" "+res,"updateLocal");
+                            }
+                            pref.edit().putString("local",res).apply();
+                        }
                     }
                 });
 

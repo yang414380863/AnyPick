@@ -115,12 +115,12 @@ public class ListActivity extends BaseActivity {
         setContentView(R.layout.list);
         init();
         initWebsiteList();
-        loginJudge();
+        WelcomePicShow();
         pushServiceInit();
         UIInit();
-        menuInit();
-        listContentInit();
-        homepageChoose();
+        menuListenerInit();
+        listListenerInit();
+        //homepageChoose();
     }
 
     private void init(){
@@ -172,22 +172,16 @@ public class ListActivity extends BaseActivity {
                 LogUtil.d(pref.getString(websites[i].getWebSiteName(),""));
             }
             editor.apply();
+            homepageChoose();
         }else {
             //用户身份 从服务器获取List
-            //从服务器下载WebsiteList todo:服务器user加一列WebsiteList
-            //读"websiteNameList"个数->创建数组->String->Object
-            String[] websiteNameNew=pref.getString("websiteNameList","").split(",");
-            Website[] websitesNew=new Website[websiteNameNew.length];
-            for (int i=0;i<websiteNameNew.length;i++){
-                websitesNew[i]= JsonUtils.JsonToWebsite(FileUtil.readFileFromAssets("website/"+websiteNameNew[i]));
-            }
-            websites=websitesNew;
-            websiteNameList=websiteNameNew;
+            //从服务器下载用户的Local
+            new Client().sendForResult("getLocal "+username+" "+password,"getLocal");
         }
     }
 
-    private void loginJudge(){
-        if (!username.equals("")){
+    private void WelcomePicShow(){
+        if (hasLogin){
             //已登录
             usernameShow.setText("Welcome: "+username);
             userIcon.setImageResource(R.drawable.ic_logout);
@@ -225,6 +219,22 @@ public class ListActivity extends BaseActivity {
             stopService(pushService);
             startActivity(intent);
             finish();
+        }
+    }
+    private void showOrHideDelete(){
+        Menu menuLeft=navViewLeft.getMenu();
+        if (menuLeft.findItem(0).getIcon()!=null){
+            if (websites.length!=0){
+                for (int i=0;i<websites.length;i++){
+                    menuLeft.findItem(i).setIcon(null);
+                }
+            }
+        }else{
+            if (websites.length!=0){
+                for (int i=0;i<websites.length;i++){
+                    menuLeft.findItem(i).setIcon(R.drawable.ic_remove_black_48dp);
+                }
+            }
         }
     }
     private void UIInit(){
@@ -292,7 +302,7 @@ public class ListActivity extends BaseActivity {
     }
 
     private void menuContentRefresh(){
-        //动态生成侧滑菜单(Left)
+        //动态生成侧滑菜单(Left) 包括:同步更新/删除 item,设置被选中项
         websiteNameList=WebsiteInit.getWebsiteNameList();
         websites=WebsiteInit.getWebsiteList();
         Menu menuLeft=navViewLeft.getMenu();
@@ -313,24 +323,8 @@ public class ListActivity extends BaseActivity {
         menuLeft.add(R.id.group_left,websites.length,websites.length, R.string.Add_Website);
         menuLeft.findItem(websites.length).setIcon(R.drawable.ic_add_black_48dp);
     }
-    private void showOrHideDelete(){
-        Menu menuLeft=navViewLeft.getMenu();
-        if (menuLeft.findItem(0).getIcon()!=null){
-            if (websites.length!=0){
-                for (int i=0;i<websites.length;i++){
-                    menuLeft.findItem(i).setIcon(null);
-                }
-            }
-        }else{
-            if (websites.length!=0){
-                for (int i=0;i<websites.length;i++){
-                    menuLeft.findItem(i).setIcon(R.drawable.ic_remove_black_48dp);
-                }
-            }
-        }
-    }
-    private void menuInit(){
-        menuContentRefresh();
+
+    private void menuListenerInit(){
         navViewLeft.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -362,7 +356,23 @@ public class ListActivity extends BaseActivity {
                         collapsingToolbarLayout.setTitle(websiteNow.getWebSiteName());
                     }else {
                         //删除状态下点击
-                        FileUtil.deleteFromData(username,item.getTitle().toString());
+                        String name=item.getTitle().toString();
+                        String[] locals=pref.getString("local","").split("!@#");
+                        StringBuilder local=new StringBuilder("");
+                        for (int i=0;i<locals.length;i++){
+                            if (!name.equals(locals[i])){
+                                if (i!=locals.length-1){
+                                    local.append(locals[i]).append("!@#");
+                                }else {
+                                    local.append(locals[i]);
+                                }
+                            }
+                        }
+                        if (!username.equals("")){
+                            new Client().sendForResult("updateLocal "+username+" "+password+" "+local,"updateLocal");
+                            pref.edit().putString("local",local.toString()).apply();
+                        }
+                        FileUtil.deleteFromData(username,name);
                         menuContentRefresh();
                     }
 
@@ -397,7 +407,7 @@ public class ListActivity extends BaseActivity {
         });
     }
 
-    private void listContentInit(){
+    private void listListenerInit(){
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -440,13 +450,16 @@ public class ListActivity extends BaseActivity {
         });
     }
 
+    private void firstInit(){
+        //安装后首次进入APP
+        websiteNow=websites[0];
+        sendRequestForList(websites[0]);//默认首页第一个
+    }
     private void homepageChoose(){
-        //无推送时默认进入上次最后打开的页面
-        //之前未使用过则打开默认主页
+        //无推送时默认进入上次最后打开的页面,之前未使用过则打开默认主页
         String indexNow=pref.getString("lastIndex","");
         if (indexNow.equals("")){
-            websiteNow=websites[0];
-            sendRequestForList(websites[0]);//默认首页第一个
+            firstInit();
         }else {
             boolean isFind=false;
             for (int i=0;i<websites.length;i++){
@@ -477,9 +490,9 @@ public class ListActivity extends BaseActivity {
                         break;
                     }
                 }
-                if (isFind){
-                    break;
-                }
+            }
+            if (!isFind){
+                websiteNow=websites[0];
             }
         }
     }
@@ -487,7 +500,7 @@ public class ListActivity extends BaseActivity {
     private void sendRequestForList(Website website){
         //关闭侧滑菜单
         drawerLayout.closeDrawers();
-        Observer<ArrayList<WebItem>> observer = new Observer<ArrayList<WebItem>>() {
+        final Observer<ArrayList<WebItem>> observer = new Observer<ArrayList<WebItem>>() {
             private Disposable disposable;
             @Override
             public void onSubscribe(Disposable d) {
@@ -670,23 +683,23 @@ public class ListActivity extends BaseActivity {
         editor.putString("mark",newMark.toString());
         editor.apply();
         mark=pref.getString("mark","");
-
-        Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                new Client().sendForResult(emitter,"updateMark "+username+" "+password+" "+mark);
-            }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        LogUtil.d("subscribe success: " + s);
-                    }
-                });
+        if (!username.equals("")){
+            Observable.create(new ObservableOnSubscribe<String>() {
+                @Override
+                public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                    new Client().sendForResult(emitter,"updateMark "+username+" "+password+" "+mark);
+                }
+            })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<String>() {
+                        @Override
+                        public void accept(String s) throws Exception {
+                            LogUtil.d("subscribe success: " + s);
+                        }
+                    });
+        }
     }
-
     public boolean isSubscribe(String websiteIndex){
         boolean hasMark=false;
         String[] strings=mark.split("!@#");
@@ -697,35 +710,6 @@ public class ListActivity extends BaseActivity {
             }
         }
         return hasMark;
-    }
-
-    //双击返回退出
-    private Handler mHandler= new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            isExit = false;
-        }
-    };
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            exit();
-            return false;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    private void exit() {
-        if (!isExit) {
-            isExit = true;
-            Toast.makeText(getApplicationContext(), "Press Back Again To Exit", Toast.LENGTH_SHORT).show();
-            // 利用handler延迟发送更改状态信息
-            mHandler.sendEmptyMessageDelayed(0, 2000);
-        } else {
-            ActivityCollector.finishExcept(this);
-            finish();
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN , sticky = true)
@@ -768,15 +752,73 @@ public class ListActivity extends BaseActivity {
                 break;
             }
             case "refreshMenu":{
-            //添加了新Website后操作
-            LogUtil.d("get result from AddWebsite");
-            menuContentRefresh();
-            break;
+                //添加了新Website后操作
+                LogUtil.d("refreshMenu");
+                menuContentRefresh();
+                break;
             }
             case "updateLocal":{
-                Toast.makeText(this,"Success download",Toast.LENGTH_SHORT);
+                Toast.makeText(this,"Synchro Success",Toast.LENGTH_LONG).show();
+                break;
+            }
+            case "getLocal":{
+                if (event.split(" ").length>2){
+                    String get=event.split(" ")[2];
+                    pref.edit().putString("local",get).apply();
+                    String[] locals=get.split("!@#");
+                    for (int i=0;i<locals.length;i++){
+                        final String tmp=locals[i];
+                        Observable.create(new ObservableOnSubscribe<String>() {
+                            @Override
+                            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                                new Client().sendForResult(emitter,"marketGetDetail "+tmp);
+                            }
+                        })
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Consumer<String>() {
+                                    @Override
+                                    public void accept(String s) throws Exception {
+                                        LogUtil.d("onNextGet: " + s);
+                                        FileUtil.writeFileToData(username,tmp,s);
+                                        EventBus.getDefault().post("refreshMenu ");
+                                        homepageChoose();
+                                    }
+                                });
+                    }
+                }
+                break;
             }
             default:{}
         }
     }
+
+    //双击返回退出
+    private Handler mHandler= new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            isExit = false;
+        }
+    };
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            exit();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    private void exit() {
+        if (!isExit) {
+            isExit = true;
+            Toast.makeText(getApplicationContext(), "Press Back Again To Exit", Toast.LENGTH_SHORT).show();
+            // 利用handler延迟发送更改状态信息
+            mHandler.sendEmptyMessageDelayed(0, 2000);
+        } else {
+            ActivityCollector.finishExcept(this);
+            finish();
+        }
+    }
+
 }

@@ -102,8 +102,11 @@ public class PushService extends Service {
     @Subscribe(threadMode = ThreadMode.BACKGROUND, sticky = true)
     public void judgePush (String event){
         if (event.split(" ")[0].equals("pushService")){
+            if (event.split(" ").length==1){
+                return;
+            }
+            event=event.split(" ")[1];
             if (event!=null&&event!=""){
-                event=event.split(" ")[1];
                 Logger.d("get push event: "+event);
                 SharedPreferences pref =PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
                 String[] res=event.split("!@#!@#");

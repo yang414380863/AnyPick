@@ -1,6 +1,5 @@
 package com.yang.AnyPick.activity;
 
-import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,8 +10,6 @@ import com.yang.AnyPick.R;
 import com.yang.AnyPick.basic.Client;
 import com.yang.AnyPick.basic.FileUtil;
 import com.yang.AnyPick.basic.LogUtil;
-import com.yang.AnyPick.web.Website;
-import com.yang.AnyPick.web.WebsiteInit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +21,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.yang.AnyPick.basic.FileUtil.showFileFromData;
-
 public class WebsiteMarket extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -34,7 +29,7 @@ public class WebsiteMarket extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_website_market);
+        setContentView(R.layout.website_market);
 
         String username= PreferenceManager.getDefaultSharedPreferences(this).getString("username","");
         FileUtil.showFileFromData(username);
