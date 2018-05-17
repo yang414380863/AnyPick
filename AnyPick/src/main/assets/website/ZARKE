@@ -1,0 +1,64 @@
+{
+	"JsonIndex": 0,
+	"JsonNext": 0,
+	"category": ["热点", "http://www.myzaker.com/channel/660", "娱乐", "http://www.myzaker.com/channel/9", "汽车", "http://www.myzaker.com/channel/7", "体育", "http://www.myzaker.com/channel/8", "科技", "http://www.myzaker.com/channel/13", "国内", "http://www.myzaker.com/channel/1", "国际", "http://www.myzaker.com/channel/2", "军事", "http://www.myzaker.com/channel/3", "财经", "http://www.myzaker.com/channel/4", "互联网", "http://www.myzaker.com/channel/5", "教育", "http://www.myzaker.com/channel/11"],
+	"categoryRule": {
+		"selector": ""
+	},
+	"detailItemSelector": "div#content > p , div#content > div[class=img_box] > div",
+	"indexUrl": "http://www.myzaker.com/channel/660",
+	"itemRule": {
+		"JsonLinkRule": {
+			"jsonPath": ""
+		},
+		"JsonNextPageRule": {
+			"jsonPath": ""
+		},
+		"JsonThumbnailRule": {
+			"jsonPath": ""
+		},
+		"JsonTitleRule": {
+			"jsonPath": ""
+		},
+		"articleRule": {
+			"method": "text",
+			"selector": "*"
+		},
+		"imgRule": {
+			"attribute": "data-original",
+			"method": "attr",
+			"selector": "img[class=lazy opacity_0]"
+		},
+		"linkRule": {
+			"attribute": "href",
+			"method": "attr",
+			"regex": "(//www.myzaker.com/article/[a-z|0-9]+/)",
+			"replace": "http:$1",
+			"selector": "a[href]"
+		},
+		"thumbnailRule": {
+			"attribute": "style",
+			"method": "attr",
+			"regex": "(zkres[0-9].myzaker.com/[0-9]+/[a-z|A-Z|0-9|\\=|\\_]+.jpg)",
+			"replace": "http://$1",
+			"selector": "a.img"
+		},
+		"titleRule": {
+			"attribute": "title",
+			"method": "attr",
+			"selector": "a[href]"
+		}
+	},
+	"itemSelector": "div#section > div[class=figure flex-block]",
+	"nextPageDetailRule": {
+		"selector": ""
+	},
+	"nextPageRule": {
+		"attribute": "href",
+		"method": "attr",
+		"regex": "(//www.myzaker.com/news/home_new\\.php\\?[a-z|A-Z|0-9|=|_|&|%|\\.]+)",
+		"replace": "http:$1",
+		"selector": "a[class=next_page]"
+	},
+	"webSiteName": "ZAKER"
+}

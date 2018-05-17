@@ -31,7 +31,11 @@ public class Client {
                     LogUtil.d("send: "+s);
                     String res=in.readLine();//返回服务器返回的内容
                     LogUtil.d("get: "+res);
-                    emitter.onNext(res);
+                    if(res!=null){
+                        emitter.onNext(res);
+                    }else {
+                        emitter.onNext("error");
+                    }
                 }catch (IOException e){
                     e.printStackTrace();
                     emitter.onNext("error");

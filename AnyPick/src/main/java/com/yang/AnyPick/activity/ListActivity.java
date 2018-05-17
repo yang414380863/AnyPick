@@ -2,6 +2,7 @@ package com.yang.AnyPick.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -155,6 +156,10 @@ public class ListActivity extends BaseActivity {
         rightBackground=(ImageView)navViewRight.getHeaderView(0).findViewById(R.id.right_background);
         removeWebsite =(ImageButton)navViewLeftHeader.findViewById(R.id.remove_website);
         removeWebsiteText =(TextView)navViewLeftHeader.findViewById(R.id.remove_website_text);
+        //下滑刷新
+        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
+        //瀑布流
+        recyclerView=(RecyclerView)findViewById(R.id.recycle_view);
     }
 
     private void initWebsiteList(){
@@ -172,6 +177,7 @@ public class ListActivity extends BaseActivity {
                 LogUtil.d(pref.getString(websites[i].getWebSiteName(),""));
             }
             editor.apply();
+            menuContentRefresh();
             homepageChoose();
         }else {
             //用户身份 从服务器获取List
@@ -223,6 +229,9 @@ public class ListActivity extends BaseActivity {
     }
     private void showOrHideDelete(){
         Menu menuLeft=navViewLeft.getMenu();
+        if (menuLeft==null||menuLeft.findItem(0)==null){
+            return;
+        }
         if (menuLeft.findItem(0).getIcon()!=null){
             if (websites.length!=0){
                 for (int i=0;i<websites.length;i++){
@@ -250,22 +259,6 @@ public class ListActivity extends BaseActivity {
                 .load(R.drawable.head_background)
                 .apply(options)
                 .into(rightBackground);
-        //userIcon监听
-        userIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doSignInOrOut();
-            }
-        });
-        //删除切换按钮
-        View.OnClickListener onClickListener=new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showOrHideDelete();
-            }
-        };
-        removeWebsite.setOnClickListener(onClickListener);
-        removeWebsiteText.setOnClickListener(onClickListener);
 
         //ToolBar 用于打开侧滑菜单的按钮
         ActionBar actionBar=getSupportActionBar();
@@ -273,18 +266,15 @@ public class ListActivity extends BaseActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             //actionBar.setHomeAsUpIndicator(R.mipmap.ic_launcher_round);
         }
-        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
-        //瀑布流
-        recyclerView=(RecyclerView)findViewById(R.id.recycle_view);
         StaggeredGridLayoutManager layoutManager=new
                 StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);//列数2
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
         //设置loading颜色 最多4个
-        //swipeRefreshLayout.setColorSchemeColors();
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary),getResources().getColor(R.color.colorPrimaryDark),getResources().getColor(R.color.colorAccent),getResources().getColor(R.color.colorBlack));
         //首次进入先显示加载中
-        swipeRefreshLayout.setRefreshing(true);
+        //swipeRefreshLayout.setRefreshing(true);
         //手动下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -303,6 +293,7 @@ public class ListActivity extends BaseActivity {
 
     private void menuContentRefresh(){
         //动态生成侧滑菜单(Left) 包括:同步更新/删除 item,设置被选中项
+        LogUtil.d("menuContentRefresh");
         websiteNameList=WebsiteInit.getWebsiteNameList();
         websites=WebsiteInit.getWebsiteList();
         Menu menuLeft=navViewLeft.getMenu();
@@ -349,7 +340,7 @@ public class ListActivity extends BaseActivity {
                             }
                         }
                         sendRequestForList(websites[position]);
-                        swipeRefreshLayout.setRefreshing(true);
+                        //swipeRefreshLayout.setRefreshing(true);
                         isRefreshing=1;
                         isNextPage=false;
                         Log.d("refresh","change website refresh!");
@@ -396,7 +387,7 @@ public class ListActivity extends BaseActivity {
                     }
                     websiteNow.setIndexUrl(websiteNow.getCategory()[positionOfCategory]);
                     sendRequestForList(websiteNow);
-                    swipeRefreshLayout.setRefreshing(true);
+                    //swipeRefreshLayout.setRefreshing(true);
                     isRefreshing=1;
                     isNextPage=false;
                     Log.d("refresh","change category refresh!");
@@ -405,6 +396,23 @@ public class ListActivity extends BaseActivity {
                 return true;
             }
         });
+        //userIcon监听
+        userIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doSignInOrOut();
+            }
+        });
+        //删除切换按钮
+        View.OnClickListener onClickListener=new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showOrHideDelete();
+            }
+        };
+        removeWebsite.setOnClickListener(onClickListener);
+        removeWebsiteText.setOnClickListener(onClickListener);
+
     }
 
     private void listListenerInit(){
@@ -432,7 +440,7 @@ public class ListActivity extends BaseActivity {
                 }
                 //划到底部刷新
                 if(!recyclerView.canScrollVertically(1)){//检测划到了底部
-                    if (isRefreshing==0){
+                    if (isRefreshing==0&&websiteNow!=null){
                         isRefreshing=1;
                         Log.d("refresh","bottom is going to refresh!");
                         browser.nextPage();//发送加载下一页的请求
@@ -498,6 +506,8 @@ public class ListActivity extends BaseActivity {
     }
 
     private void sendRequestForList(Website website){
+        swipeRefreshLayout.setRefreshing(true);
+        LogUtil.d("Request: "+website.getIndexUrl());
         //关闭侧滑菜单
         drawerLayout.closeDrawers();
         final Observer<ArrayList<WebItem>> observer = new Observer<ArrayList<WebItem>>() {
@@ -533,6 +543,7 @@ public class ListActivity extends BaseActivity {
             @Override
             public void onComplete() {
                 Logger.d("onComplete and dispose");
+                swipeRefreshLayout.setRefreshing(false);
                 disposable.dispose();
                 isNextPage=false;
             }
@@ -550,10 +561,11 @@ public class ListActivity extends BaseActivity {
             @Override
             public void onNext(String imgSrc) {
                 Logger.d("ToolBar get "+imgSrc);
-                RequestOptions options = new RequestOptions().error(R.drawable.toolbar).fitCenter();
+                RequestOptions options = new RequestOptions().error(R.drawable.toolbar).fitCenter().dontAnimate();//无载入动画;
                 Glide
                         .with(ListActivity.this)
                         .load(imgSrc)
+                        .thumbnail(0.1f)
                         .apply(options)
                         .into(imageView);
             }
@@ -635,6 +647,9 @@ public class ListActivity extends BaseActivity {
                 drawerLayout.openDrawer(Gravity.START);
                 break;
             case R.id.subscribe:
+                if(websiteNow==null){
+                    break;
+                }
                 subscribe(websiteNow.getIndexUrl());//执行订阅/取消订阅操作
                 if (isSubscribe(websiteNow.getIndexUrl())){
                     toolbarMenu.getItem(0).setIcon(R.drawable.ic_star_white_48dp);//换成已订阅的图标
@@ -727,7 +742,7 @@ public class ListActivity extends BaseActivity {
                         if (websites[i].getIndexUrl().equals(index)){
                             websiteNow=websites[i];
                             sendRequestForList(websiteNow);
-                            swipeRefreshLayout.setRefreshing(true);
+                            //swipeRefreshLayout.setRefreshing(true);
                             break;
                         }else {
                             //无Category/Index的跳过
@@ -739,7 +754,7 @@ public class ListActivity extends BaseActivity {
                                 websiteNow=websites[i];
                                 websiteNow.setIndexUrl(websites[i].getCategory()[j+1]);
                                 sendRequestForList(websiteNow);
-                                swipeRefreshLayout.setRefreshing(true);
+                                //swipeRefreshLayout.setRefreshing(true);
                                 isFind=true;
                                 break;
                             }
@@ -781,11 +796,14 @@ public class ListActivity extends BaseActivity {
                                     public void accept(String s) throws Exception {
                                         LogUtil.d("onNextGet: " + s);
                                         FileUtil.writeFileToData(username,tmp,s);
-                                        EventBus.getDefault().post("refreshMenu ");
+                                        menuContentRefresh();
                                         homepageChoose();
                                     }
                                 });
                     }
+                }else {
+                    menuContentRefresh();
+                    homepageChoose();
                 }
                 break;
             }

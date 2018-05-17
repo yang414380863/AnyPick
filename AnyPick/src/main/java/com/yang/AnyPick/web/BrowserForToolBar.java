@@ -89,7 +89,6 @@ public class BrowserForToolBar {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             LogUtil.d("onFailure");
-                            Toast.makeText(MyApplication.getContext(),"Network connection failure",Toast.LENGTH_SHORT).show();
                             emitter.onError(e);
                             call.cancel();
                         }

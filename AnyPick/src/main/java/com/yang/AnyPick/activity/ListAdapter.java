@@ -69,6 +69,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder>imp
         Glide
                 .with(context)
                 .load(webContent.getThumbnail())
+                .thumbnail(0.1f)
                 //.thumbnail(Glide.with(context).load(R.drawable.loading1))//好像有点问题
                 .apply(options)
                 //.crossFade() //设置淡入淡出效果，默认300ms，可以传参 会导致图片变形 先不用

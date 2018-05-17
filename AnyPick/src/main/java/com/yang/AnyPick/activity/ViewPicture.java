@@ -1,9 +1,7 @@
 package com.yang.AnyPick.activity;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -14,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -29,8 +26,6 @@ public class ViewPicture extends BaseActivity implements View.OnClickListener {
 
     //沉浸式
     static View systemBar;
-    //广播接收器
-    private Receiver receiver;
 
     private DownloadService.DownloadBinder downloadBinder;
     private ServiceConnection connection=new ServiceConnection() {
@@ -55,11 +50,6 @@ public class ViewPicture extends BaseActivity implements View.OnClickListener {
         startDownload.setOnClickListener(this);
         pauseDownload.setOnClickListener(this);
         cancelDownload.setOnClickListener(this);
-
-        IntentFilter intentFilter=new IntentFilter();
-        intentFilter.addAction("com.example.yang.myapplication.CLICK_PUSH");
-        receiver=new Receiver();
-        registerReceiver(receiver,intentFilter);
 
         //沉浸式
         systemBar=getWindow().getDecorView();
@@ -131,18 +121,6 @@ public class ViewPicture extends BaseActivity implements View.OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         unbindService(connection);
-        if (receiver!=null){
-            unregisterReceiver(receiver);
-        }
-    }
-    class Receiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("com.example.yang.myapplication.CLICK_PUSH")){
-                finish();
-            }
-        }
     }
 
 }

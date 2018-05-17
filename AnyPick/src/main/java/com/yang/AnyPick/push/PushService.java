@@ -112,6 +112,9 @@ public class PushService extends Service {
                 String[] res=event.split("!@#!@#");
                 for (int i=0;i<res.length;i++){
                     String[] s=res[i].split("!@#");
+                    if (s.length!=3){
+                        break;
+                    }
                     Long getDate=Long.valueOf(s[2]);
                     Long latestDate=Long.valueOf(pref.getString(s[0],"0"));
                     //LogUtil.d("getDate "+sdf.format(getDate));

@@ -2,14 +2,14 @@
     "JsonIndex": 0,
     "JsonNext": 0,
     "category": [
-        "最新",
+        "最新发布",
         "https://www.gracg.com/works/index/type/new",
-        "新赞",
+        "最新获赞",
         "https://www.gracg.com/works/index/type/love",
-        "热门",
+        "热门作品",
         "https://www.gracg.com/works/index/type/hot",
-        "精华",
-        "https://www.gracg.com/works/index/type/best",
+        "作品精选",
+        "https://www.gracg.com/works/index/type/essence",
         "推荐",
         "https://www.gracg.com/works/index/type/rem"
     ],
@@ -61,11 +61,10 @@
         "selector": ""
     },
     "nextPageRule": {
-        "attribute": "href",
-        "method": "attr",
-        "regex": "(https://www.gracg.com/works/index/type/[a-z]+)",
-        "replace": "$1/page/!page/",
-        "selector": "li[class=active] > a[href]"
+        "method": "html",
+        "regex": "[a-z]",
+        "replace": "!index!/page/!page!",
+        "selector": "*"
     },
     "webSiteName": "涂鸦王国"
 }
